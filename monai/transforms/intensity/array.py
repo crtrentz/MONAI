@@ -17,22 +17,23 @@ import numpy as np
 
 from monai.transforms.compose import Transform, Randomizable
 from monai.transforms.utils import rescale_array
+from typing import Union, List, Tuple
 
 
 class RandGaussianNoise(Randomizable, Transform):
     """Add Gaussian noise to image.
 
     Args:
-        prob (float): Probability to add Gaussian noise.
-        mean (float or array of floats): Mean or “centre” of the distribution.
-        std (float): Standard deviation (spread) of distribution.
+        prob: Probability to add Gaussian noise.
+        mean: Mean or “centre” of the distribution.
+        std: Standard deviation (spread) of distribution.
     """
 
-    def __init__(self, prob=0.1, mean=0.0, std=0.1):
-        self.prob = prob
-        self.mean = mean
-        self.std = std
-        self._do_transform = False
+    def __init__(self, prob: float = 0.1, mean: Union[float, List[float]] = 0.0, std: float = 0.1):
+        self.prob: float = prob
+        self.mean: Union[float, List[float]] = mean
+        self.std: float = std
+        self._do_transform: bool = False
         self._noise = None
 
     def randomize(self, im_shape):
@@ -62,17 +63,19 @@ class RandShiftIntensity(Randomizable, Transform):
     """Randomly shift intensity with randomly picked offset.
     """
 
-    def __init__(self, offsets, prob=0.1):
+    def __init__(self, offsets: Union[int, float, Tuple, List], prob: float = 0.1):
         """
         Args:
-            offsets(int, float, tuple or list): offset range to randomly shift.
+            offsets: offset range to randomly shift.
                 if single number, offset value is picked from (-offsets, offsets).
-            prob (float): probability of shift.
+            prob: probability of shift.
         """
-        self.offsets = (-offsets, offsets) if not isinstance(offsets, (list, tuple)) else offsets
+        self.offsets: Union[int, float, Tuple, List] = (-offsets, offsets) if not isinstance(
+            offsets, (list, tuple)
+        ) else offsets
         assert len(self.offsets) == 2, "offsets should be a number or pair of numbers."
-        self.prob = prob
-        self._do_transform = False
+        self.prob: float = prob
+        self._do_transform: bool = False
 
     def randomize(self):
         self._offset = self.R.uniform(low=self.offsets[0], high=self.offsets[1])

@@ -17,7 +17,7 @@ from torch.utils.tensorboard import SummaryWriter
 from tensorboard.compat.proto import summary_pb2
 from monai.transforms.utils import rescale_array
 
-from typing import Sequence, Union
+from typing import Sequence, Union, Optional
 
 
 def _image3_animated_gif(tag: str, image: Union[np.array, torch.Tensor], scale_factor: float = 1):
@@ -51,19 +51,19 @@ def make_animated_gif_summary(
     max_out: int = 3,
     animation_axes: Sequence[int] = (3,),
     image_axes: Sequence[int] = (1, 2),
-    other_indices: dict = None,
+    other_indices: Optional[dict] = None,
     scale_factor: float = 1,
 ):
     """Creates an animated gif out of an image tensor in 'CHWD' format and returns Summary.
 
     Args:
-        tag (str): Data identifier
-        image (np.array or Tensor): The image, expected to be in CHWD format
-        max_out (int): maximum number of slices to animate through
-        animation_axes (Sequence[int]): axis to animate on (not currently used)
-        image_axes (Sequence[int]): axes of image (not currently used)
-        other_indices (dict): (not currently used)
-        scale_factor (float): amount to multiply values by.
+        tag: Data identifier
+        image: The image, expected to be in CHWD format
+        max_out: maximum number of slices to animate through
+        animation_axes: axis to animate on (not currently used)
+        image_axes: axes of image (not currently used)
+        other_indices: (not currently used)
+        scale_factor: amount to multiply values by.
             if the image data is between 0 and 1, using 255 for this value will scale it to displayable range
     """
 
