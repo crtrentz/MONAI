@@ -61,7 +61,7 @@ class Spacingd(MapTransform):
         mode: Union[str, Sequence[str]] = "nearest",
         cval: Union[float, Sequence[float]] = 0,
         dtype: Optional[Union[type, Sequence[type]]] = None,
-        meta_key_format: str = "{}.{}"
+        meta_key_format: str = "{}.{}",
     ):
         """
         Args:
@@ -134,7 +134,7 @@ class Orientationd(MapTransform):
         axcodes=None,
         as_closest_canonical: bool = False,
         labels=tuple(zip("LPI", "RAS")),
-        meta_key_format: str = "{}.{}"
+        meta_key_format: str = "{}.{}",
     ):
         """
         Args:
@@ -153,7 +153,9 @@ class Orientationd(MapTransform):
             `nibabel.orientations.ornt2axcodes`.
         """
         super().__init__(keys)
-        self.ornt_transform: Orientation = Orientation(axcodes=axcodes, as_closest_canonical=as_closest_canonical, labels=labels)
+        self.ornt_transform: Orientation = Orientation(
+            axcodes=axcodes, as_closest_canonical=as_closest_canonical, labels=labels
+        )
         self.meta_key_format: str = meta_key_format
 
     def __call__(self, data):
@@ -170,12 +172,7 @@ class Rotate90d(MapTransform):
     Dictionary-based wrapper of :py:class:`monai.transforms.Rotate90`.
     """
 
-    def __init__(
-        self,
-        keys,
-        k: int = 1,
-        spatial_axes: Tuple[int, int] = (0, 1)
-    ):
+    def __init__(self, keys, k: int = 1, spatial_axes: Tuple[int, int] = (0, 1)):
         """
         Args:
             k (int): number of times to rotate by 90 degrees.
@@ -198,13 +195,7 @@ class RandRotate90d(Randomizable, MapTransform):
     in the plane specified by `spatial_axes`.
     """
 
-    def __init__(
-        self,
-        keys,
-        prob: float = 0.1,
-        max_k: int = 3,
-        spatial_axes: Tuple[int, int] = (0, 1)
-    ):
+    def __init__(self, keys, prob: float = 0.1, max_k: int = 3, spatial_axes: Tuple[int, int] = (0, 1)):
         """
         Args:
             keys (hashable items): keys of the corresponding items to be transformed.
@@ -830,7 +821,9 @@ class RandZoomd(Randomizable, MapTransform):
     def randomize(self):
         self._do_transform: bool = self.R.random_sample() < self.prob
         if hasattr(self.min_zoom, "__iter__"):
-            self._zoom: Union[float, Sequence[float]] = (self.R.uniform(l, h) for l, h in zip(self.min_zoom, self.max_zoom))
+            self._zoom: Union[float, Sequence[float]] = (
+                self.R.uniform(l, h) for l, h in zip(self.min_zoom, self.max_zoom)
+            )
         else:
             self._zoom: Union[float, Sequence[float]] = self.R.uniform(self.min_zoom, self.max_zoom)
 
