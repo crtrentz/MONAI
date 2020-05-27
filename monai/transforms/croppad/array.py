@@ -12,6 +12,7 @@
 A collection of "vanilla" transforms for crop and pad operations
 https://github.com/Project-MONAI/MONAI/wiki/MONAI_Design
 """
+from typing import Union, Optional, Callable
 
 import numpy as np
 
@@ -27,19 +28,19 @@ class SpatialPad(Transform):
      for additional details.
 
     Args:
-        spatial_size (list): the spatial size of output data after padding.
-        method (str): pad image symmetric on every side or only pad at the end sides. default is 'symmetric'.
-        mode (str): one of the following string values or a user supplied function: {'constant', 'edge', 'linear_ramp',
+        spatial_size: the spatial size of output data after padding.
+        method: pad image symmetric on every side or only pad at the end sides. default is 'symmetric'.
+        mode: one of the following string values or a user supplied function: {'constant', 'edge', 'linear_ramp',
             'maximum', 'mean', 'median', 'minimum', 'reflect', 'symmetric', 'wrap', 'empty', <function>}
             for more details, please check: https://docs.scipy.org/doc/numpy/reference/generated/numpy.pad.html
     """
 
-    def __init__(self, spatial_size, method="symmetric", mode="constant"):
-        self.spatial_size = ensure_tuple(spatial_size)
+    def __init__(self, spatial_size: list, method: str = "symmetric", mode: str = "constant"):
+        self.spatial_size: tuple = ensure_tuple(spatial_size)
         assert method in ("symmetric", "end"), "unsupported padding type."
-        self.method = method
+        self.method: str = method
         assert isinstance(mode, str), "mode must be str."
-        self.mode = mode
+        self.mode: str = mode
 
     def _determine_data_pad_width(self, data_shape):
         if self.method == "symmetric":
@@ -67,13 +68,19 @@ class SpatialCrop(Transform):
     Note: This transform will not work if the crop region is larger than the image itself.
     """
 
-    def __init__(self, roi_center=None, roi_size=None, roi_start=None, roi_end=None):
+    def __init__(
+        self,
+        roi_center: Optional[Union[list, tuple]] = None,
+        roi_size: Optional[Union[list, tuple]] = None,
+        roi_start: Optional[Union[list, tuple]] = None,
+        roi_end: Optional[Union[list, tuple]] = None,
+    ):
         """
         Args:
-            roi_center (list or tuple): voxel coordinates for center of the crop ROI.
-            roi_size (list or tuple): size of the crop ROI.
-            roi_start (list or tuple): voxel coordinates for start of the crop ROI.
-            roi_end (list or tuple): voxel coordinates for end of the crop ROI.
+            roi_center: voxel coordinates for center of the crop ROI.
+            roi_size: size of the crop ROI.
+            roi_start: voxel coordinates for start of the crop ROI.
+            roi_end: voxel coordinates for end of the crop ROI.
         """
         if roi_center is not None and roi_size is not None:
             roi_center = np.asarray(roi_center, dtype=np.uint16)
@@ -104,11 +111,11 @@ class CenterSpatialCrop(Transform):
     Crop at the center of image with specified ROI size.
 
     Args:
-        roi_size (list, tuple): the spatial size of the crop region e.g. [224,224,128]
+        roi_size: the spatial size of the crop region e.g. [224,224,128]
     """
 
-    def __init__(self, roi_size):
-        self.roi_size = roi_size
+    def __init__(self, roi_size: Union[list, tuple]):
+        self.roi_size: Union[list, tuple] = roi_size
 
     def __call__(self, img):
         center = [i // 2 for i in img.shape[1:]]
@@ -123,17 +130,17 @@ class RandSpatialCrop(Randomizable, Transform):
     This transform assumes all the expected fields specified by `keys` have same shape.
 
     Args:
-        roi_size (list, tuple): if `random_size` is True, the spatial size of the minimum crop region.
+        roi_size: if `random_size` is True, the spatial size of the minimum crop region.
             if `random_size` is False, specify the expected ROI size to crop. e.g. [224, 224, 128]
-        random_center (bool): crop at random position as center or the image center.
-        random_size (bool): crop with random size or specific size ROI.
+        random_center: crop at random position as center or the image center.
+        random_size: crop with random size or specific size ROI.
             The actual size is sampled from `randint(roi_size, img_size)`.
     """
 
-    def __init__(self, roi_size, random_center=True, random_size=True):
-        self.roi_size = roi_size
-        self.random_center = random_center
-        self.random_size = random_size
+    def __init__(self, roi_size: Union[list, tuple], random_center: bool = True, random_size: bool = True):
+        self.roi_size: Union[list, tuple] = roi_size
+        self.random_center: bool = random_center
+        self.random_size: bool = random_size
 
     def randomize(self, img_size):
         self._size = ensure_tuple_rep(self.roi_size, len(img_size))
@@ -177,13 +184,13 @@ class CropForeground(Transform):
 
     """
 
-    def __init__(self, select_fn=lambda x: x > 0, channel_indexes=None, margin=0):
+    def __init__(self, select_fn: Callable = lambda x: x > 0, channel_indexes=None, margin: int = 0):
         """
         Args:
-            select_fn (Callable): function to select expected foreground, default is to select values > 0.
+            select_fn: function to select expected foreground, default is to select values > 0.
             channel_indexes (int, tuple or list): if defined, select foreground only on the specified channels
                 of image. if None, select foreground on the whole image.
-            margin (int): add margin to all dims of the bounding box.
+            margin: add margin to all dims of the bounding box.
         """
         self.select_fn = select_fn
         self.channel_indexes = ensure_tuple(channel_indexes) if channel_indexes is not None else None

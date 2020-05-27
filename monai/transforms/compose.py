@@ -13,7 +13,7 @@ A collection of generic interfaces for MONAI transforms.
 """
 
 import warnings
-from typing import Hashable, Union
+from typing import Hashable, Union, Optional
 from abc import ABC, abstractmethod
 import numpy as np
 
@@ -67,31 +67,31 @@ class Randomizable(ABC):
 
     R = np.random.RandomState()
 
-    def set_random_state(self, seed=None, state=None):
+    def set_random_state(self, seed: Optional[int] = None, state: Optional[np.random.RandomState] = None):
         """
         Set the random state locally, to control the randomness, the derived
         classes should use :py:attr:`self.R` instead of `np.random` to introduce random
         factors.
 
         Args:
-            seed (int): set the random state with an integer seed.
-            state (np.random.RandomState): set the random state with a `np.random.RandomState` object.
+            seed: set the random state with an integer seed.
+            state: set the random state with a `np.random.RandomState` object.
 
         Returns:
             a Randomizable instance.
         """
         if seed is not None:
-            _seed = id(seed) if not isinstance(seed, int) else seed
-            self.R = np.random.RandomState(_seed)
+            _seed: int = id(seed) if not isinstance(seed, int) else seed
+            self.R: np.random.RandomState = np.random.RandomState(_seed)
             return self
 
         if state is not None:
             if not isinstance(state, np.random.RandomState):
                 raise ValueError(f"`state` must be a `np.random.RandomState`, got {type(state)}")
-            self.R = state
+            self.R: np.random.RandomState = state
             return self
 
-        self.R = np.random.RandomState()
+        self.R: np.random.RandomState = np.random.RandomState()
         return self
 
     @abstractmethod
@@ -169,15 +169,15 @@ class Compose(Randomizable):
         them are called on the labels.
     """
 
-    def __init__(self, transforms=None):
+    def __init__(self, transforms: Optional[Union[list, tuple]] = None):
         if transforms is None:
             transforms = []
         if not isinstance(transforms, (list, tuple)):
             raise ValueError("Parameters 'transforms' must be a list or tuple")
-        self.transforms = transforms
+        self.transforms: Union[list, tuple] = transforms
         self.set_random_state(seed=get_seed())
 
-    def set_random_state(self, seed=None, state=None):
+    def set_random_state(self, seed: Optional[int] = None, state: Optional[np.random.RandomState] = None):
         for _transform in self.transforms:
             if not isinstance(_transform, Randomizable):
                 continue
