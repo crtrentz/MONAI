@@ -69,7 +69,7 @@ class NiftiDataset(Dataset, Randomizable):
     def randomize(self):
         self.seed = self.R.randint(np.iinfo(np.int32).max)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int):
         self.randomize()
         meta_data = None
         img_loader = LoadNifti(

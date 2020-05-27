@@ -14,7 +14,9 @@ import numpy as np
 from monai.transforms.utils import rescale_array
 
 
-def create_test_image_2d(width, height, num_objs=12, rad_max=30, noise_max=0.0, num_seg_classes=5, channel_dim=None):
+def create_test_image_2d(
+    width: int, height: int, num_objs: int = 12, rad_max: int = 30, noise_max=0.0, num_seg_classes=5, channel_dim=None
+):
     """
     Return a noisy 2D image with `num_obj` circles and a 2D mask image. The maximum radius of the circles is given as
     `rad_max`. The mask will have `num_seg_classes` number of classes for segmentations labeled sequentially from 1, plus a
@@ -52,7 +54,14 @@ def create_test_image_2d(width, height, num_objs=12, rad_max=30, noise_max=0.0, 
 
 
 def create_test_image_3d(
-    height, width, depth, num_objs=12, rad_max=30, noise_max=0.0, num_seg_classes=5, channel_dim=None
+    height: int,
+    width: int,
+    depth: int,
+    num_objs: int = 12,
+    rad_max: int = 30,
+    noise_max=0.0,
+    num_seg_classes=5,
+    channel_dim=None,
 ):
     """
     Return a noisy 3D image and segmentation.

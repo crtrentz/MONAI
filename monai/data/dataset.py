@@ -53,7 +53,7 @@ class Dataset(torchDataSet):
     def __len__(self):
         return len(self.data)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int):
         data = self.data[index]
         if self.transform is not None:
             data = self.transform(data)
@@ -113,7 +113,7 @@ class PersistentDataset(Dataset):
         super().__init__(data=data, transform=transform)
         self.cache_dir: Optional[Union[Path, str]] = Path(cache_dir) if cache_dir is not None else None
 
-    def _pre_first_random_transform(self, item_transformed):
+    def _pre_first_random_transform(self, item_transformed: object):
         """
         Process the data from original state up to the first random element.
 
@@ -130,7 +130,7 @@ class PersistentDataset(Dataset):
             item_transformed = apply_transform(_transform, item_transformed)
         return item_transformed
 
-    def _first_random_and_beyond_transform(self, item_transformed):
+    def _first_random_and_beyond_transform(self, item_transformed: object):
         """
         Process the data from before the first random transform to the final state ready for evaluation.
         Args:
@@ -145,7 +145,7 @@ class PersistentDataset(Dataset):
                 item_transformed = apply_transform(_transform, item_transformed)
         return item_transformed
 
-    def _pre_first_random_cachecheck(self, item_transformed):
+    def _pre_first_random_cachecheck(self, item_transformed: object):
         """
             A function to cache the expensive input data transform operations
             so that huge data sets (larger than computer memory) can be processed
@@ -190,7 +190,7 @@ class PersistentDataset(Dataset):
 
         return item_transformed
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int):
         pre_random_item = self._pre_first_random_cachecheck(self.data[index])
         post_random_item = self._first_random_and_beyond_transform(pre_random_item)
         return post_random_item
@@ -269,7 +269,7 @@ class CacheDataset(Dataset):
                     self._cache[i] = self._load_cache_item(data[i], transform.transforms)
                     process_bar(i + 1, self.cache_num)
 
-    def _load_cache_item(self, item, transforms):
+    def _load_cache_item(self, item: object, transforms: Iterable[Callable]):
         for _transform in transforms:
             # execute all the deterministic transforms before the first random transform
             if isinstance(_transform, Randomizable):
@@ -284,7 +284,7 @@ class CacheDataset(Dataset):
             self._item_processed += 1
             process_bar(self._item_processed, self.cache_num)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int):
         if index < self.cache_num:
             # load data from cache and execute from the first random transform
             start_run = False
@@ -322,7 +322,7 @@ class ZipDataset(torch.utils.data.Dataset):
 
     """
 
-    def __init__(self, datasets: Union[list, tuple], transform=None):
+    def __init__(self, datasets: Union[list, tuple], transform: Callable = None):
         """
         Args:
             datasets: list of datasets to zip together.
@@ -334,7 +334,7 @@ class ZipDataset(torch.utils.data.Dataset):
     def __len__(self):
         return self.len
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int):
         def to_list(x):
             return list(x) if isinstance(x, (tuple, list)) else [x]
 
@@ -413,7 +413,7 @@ class ArrayDataset(ZipDataset, Randomizable):
     def randomize(self):
         self.seed = self.R.randint(np.iinfo(np.int32).max)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int):
         self.randomize()
         for dataset in self.datasets:
             if isinstance(dataset.transform, Randomizable):

@@ -13,7 +13,7 @@ import math
 from typing import Optional, Tuple, Iterable
 
 import torch
-from torch.utils.data import IterableDataset
+from torch.utils.data import Dataset, IterableDataset
 
 from monai.data.utils import iter_patch
 
@@ -25,7 +25,7 @@ class GridPatchDataset(IterableDataset):
 
     def __init__(
         self,
-        dataset,
+        dataset: Dataset,
         patch_size: Optional[Iterable[int]],
         start_pos: Iterable[int] = (),
         pad_mode: Optional[str] = "wrap",
@@ -39,7 +39,7 @@ class GridPatchDataset(IterableDataset):
         specified by a `patch_size` of (10, 10, 10).
 
         Args:
-            dataset (Dataset): the dataset to read array data from
+            dataset: the dataset to read array data from
             patch_size: size of patches to generate slices for, 0/None selects whole dimension
             start_pos: starting position in the array, default is 0 for each dimension
             pad_mode: padding mode, see numpy.pad

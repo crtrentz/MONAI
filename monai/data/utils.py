@@ -21,7 +21,7 @@ from monai.utils import ensure_tuple_size
 from monai.networks.layers.simplelayers import GaussianFilter
 
 import enum
-from typing import Union
+from typing import Union, Optional
 
 
 class InterpolationCode(enum.IntEnum):
@@ -43,19 +43,21 @@ class InterpolationCode(enum.IntEnum):
 InterpolationCodeType = Union[int, InterpolationCode]
 
 
-def get_random_patch(dims, patch_size, rand_state=None):
+def get_random_patch(
+    dims: Tuple[int], patch_size: Tuple[int], rand_state: Union[np.random.RandomState, None] = None
+) -> Tuple[slice]:
     """
     Returns a tuple of slices to define a random patch in an array of shape `dims` with size `patch_size` or the as
     close to it as possible within the given dimension. It is expected that `patch_size` is a valid patch for a source
     of shape `dims` as returned by `get_valid_patch_size`.
 
     Args:
-        dims (tuple of int): shape of source array
-        patch_size (tuple of int): shape of patch size to generate
-        rand_state (np.random.RandomState): a random state object to generate random numbers from
+        dims: shape of source array
+        patch_size: shape of patch size to generate
+        rand_state: a random state object to generate random numbers from
 
     Returns:
-        (tuple of slice): a tuple of slice objects defining the patch
+        a tuple of slice objects defining the patch
     """
 
     # choose the minimal corner of the patch
@@ -66,16 +68,16 @@ def get_random_patch(dims, patch_size, rand_state=None):
     return tuple(slice(mc, mc + ps) for mc, ps in zip(min_corner, patch_size))
 
 
-def iter_patch_slices(dims, patch_size, start_pos=()):
+def iter_patch_slices(dims: Tuple[int], patch_size: Union[Tuple[int], None], start_pos: Optional[Tuple[int]] = ()):
     """
     Yield successive tuples of slices defining patches of size `patch_size` from an array of dimensions `dims`. The
     iteration starts from position `start_pos` in the array, or starting at the origin if this isn't provided. Each
     patch is chosen in a contiguous grid using a first dimension as least significant ordering.
 
     Args:
-        dims (tuple of int): dimensions of array to iterate over
-        patch_size (tuple of int or None): size of patches to generate slices for, 0 or None selects whole dimension
-        start_pos (tuple of it, optional): starting position in the array, default is 0 for each dimension
+        dims: dimensions of array to iterate over
+        patch_size: size of patches to generate slices for, 0 or None selects whole dimension
+        start_pos: starting position in the array, default is 0 for each dimension
 
     Yields:
         Tuples of slice objects defining each patch
@@ -94,14 +96,14 @@ def iter_patch_slices(dims, patch_size, start_pos=()):
         yield tuple(slice(s, s + p) for s, p in zip(position[::-1], patch_size))
 
 
-def dense_patch_slices(image_size, patch_size, scan_interval):
+def dense_patch_slices(image_size: Tuple[int], patch_size: Tuple[int], scan_interval: Tuple[int]) -> List[slice]:
     """
     Enumerate all slices defining 2D/3D patches of size `patch_size` from an `image_size` input image.
 
     Args:
-        image_size (tuple of int): dimensions of image to iterate over
-        patch_size (tuple of int): size of patches to generate slices
-        scan_interval (tuple of int): dense patch sampling interval
+        image_size: dimensions of image to iterate over
+        patch_size: size of patches to generate slices
+        scan_interval: dense patch sampling interval
 
     Returns:
         a list of slice objects defining each patch
@@ -147,19 +149,26 @@ def dense_patch_slices(image_size, patch_size, scan_interval):
     return slices
 
 
-def iter_patch(arr, patch_size, start_pos=(), copy_back=True, pad_mode="wrap", **pad_opts):
+def iter_patch(
+    arr: np.ndarray,
+    patch_size: Union[Tuple[int], None],
+    start_pos: Optional[Tuple[int]] = (),
+    copy_back: bool = True,
+    pad_mode: Optional[str] = "wrap",
+    **pad_opts: Optional[dict],
+):
     """
     Yield successive patches from `arr` of size `patch_size`. The iteration can start from position `start_pos` in `arr`
     but drawing from a padded array extended by the `patch_size` in each dimension (so these coordinates can be negative
     to start in the padded region). If `copy_back` is True the values from each patch are written back to `arr`.
 
     Args:
-        arr (np.ndarray): array to iterate over
-        patch_size (tuple of int or None): size of patches to generate slices for, 0 or None selects whole dimension
-        start_pos (tuple of it, optional): starting position in the array, default is 0 for each dimension
-        copy_back (bool): if True data from the yielded patches is copied back to `arr` once the generator completes
-        pad_mode (str, optional): padding mode, see `numpy.pad`
-        pad_opts (dict, optional): padding options, see `numpy.pad`
+        arr: array to iterate over
+        patch_size: size of patches to generate slices for, 0 or None selects whole dimension
+        start_pos: starting position in the array, default is 0 for each dimension
+        copy_back: if True data from the yielded patches is copied back to `arr` once the generator completes
+        pad_mode: padding mode, see `numpy.pad`
+        pad_opts: padding options, see `numpy.pad`
 
     Yields:
         Patches of array data from `arr` which are views into a padded array which can be modified, if `copy_back` is
@@ -278,7 +287,7 @@ def rectify_header_sform_qform(img_nii):
     return img_nii
 
 
-def zoom_affine(affine, scale, diagonal=True):
+def zoom_affine(affine, scale, diagonal: bool = True):
     """
     To make column norm of `affine` the same as `scale`.  if diagonal is False,
     returns an affine that combines orthogonal rotation and the new scale.
@@ -291,7 +300,7 @@ def zoom_affine(affine, scale, diagonal=True):
     Args:
         affine (nxn matrix): a square matrix.
         scale (sequence of floats): new scaling factor along each dimension.
-        diagonal (bool): whether to return a diagonal scaling matrix.
+        diagonal: whether to return a diagonal scaling matrix.
             Defaults to True.
 
     returns:
@@ -388,16 +397,16 @@ def to_affine_nd(r, affine):
     return new_affine
 
 
-def create_file_basename(postfix, input_file_name, folder_path, data_root_dir=""):
+def create_file_basename(postfix: str, input_file_name: str, folder_path: str, data_root_dir: str = ""):
     """
     Utility function to create the path to the output file based on the input
     filename (extension is added by lib level writer before writing the file)
 
     Args:
-        postfix (str): output name's postfix
-        input_file_name (str): path to the input image file
-        folder_path (str): path for the output file
-        data_root_dir (str): if not empty, it specifies the beginning parts of the input file's
+        postfix: output name's postfix
+        input_file_name: path to the input image file
+        folder_path: path for the output file
+        data_root_dir: if not empty, it specifies the beginning parts of the input file's
             absolute path. This is used to compute `input_file_rel_path`, the relative path to the file from
             `data_root_dir` to preserve folder structure when saving in case there are files in different
             folders with the same file names.
@@ -425,14 +434,16 @@ def create_file_basename(postfix, input_file_name, folder_path, data_root_dir=""
     return os.path.join(subfolder_path, filename + "_" + postfix)
 
 
-def compute_importance_map(patch_size, mode="constant", sigma_scale=0.125, device=None):
+def compute_importance_map(
+    patch_size: tuple, mode: str = "constant", sigma_scale: float = 0.125, device: str = None
+) -> torch.Tensor:
     """Get importance map for different weight modes.
 
     Args:
-        patch_size (tuple): Size of the required importance map. This should be either H, W [,D].
-        mode (str): Importance map type. Options are 'constant' (Each weight has value 1.0)
+        patch_size: Size of the required importance map. This should be either H, W [,D].
+        mode: Importance map type. Options are 'constant' (Each weight has value 1.0)
             or 'gaussian' (Importance becomes lower away from center).
-        sigma_scale (float): Sigma_scale to calculate sigma for each dimension 
+        sigma_scale: Sigma_scale to calculate sigma for each dimension 
             (sigma = sigma_scale * dim_size). Used for gaussian mode only.
         device (str of pytorch device): Device to put importance map on.
 
