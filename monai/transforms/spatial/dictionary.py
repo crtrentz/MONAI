@@ -14,7 +14,9 @@ defined in :py:class:`monai.transforms.spatial.array`.
 
 Class names are ended with 'd' to denote dictionary-based transforms.
 """
+from typing import Sequence, Optional, Union, Tuple, List
 
+import numpy as np
 import torch
 from monai.data.utils import InterpolationCode
 
@@ -51,12 +53,20 @@ class Spacingd(MapTransform):
     """
 
     def __init__(
-        self, keys, pixdim, diagonal=False, interp_order=3, mode="nearest", cval=0, dtype=None, meta_key_format="{}.{}"
+        self,
+        keys: dict,
+        pixdim: Sequence[float],
+        diagonal: bool = False,
+        interp_order: Union[InterpolationCode, Sequence[InterpolationCode]] = 3,
+        mode: Union[str, Sequence[str]] = "nearest",
+        cval: Union[float, Sequence[float]] = 0,
+        dtype: Optional[Union[type, Sequence[type]]] = None,
+        meta_key_format: str = "{}.{}"
     ):
         """
         Args:
-            pixdim (sequence of floats): output voxel spacing.
-            diagonal (bool): whether to resample the input to have a diagonal affine matrix.
+            pixdim: output voxel spacing.
+            diagonal: whether to resample the input to have a diagonal affine matrix.
                 If True, the input data is resampled to the following affine::
 
                     np.diag((pixdim_0, pixdim_1, pixdim_2, 1))
@@ -81,15 +91,15 @@ class Spacingd(MapTransform):
             meta_key_format (str): key format to read/write affine matrices to the data dictionary.
         """
         super().__init__(keys)
-        self.spacing_transform = Spacing(pixdim, diagonal=diagonal)
+        self.spacing_transform: Spacing = Spacing(pixdim, diagonal=diagonal)
         self.interp_order = ensure_tuple_rep(interp_order, len(self.keys))
         self.mode = ensure_tuple_rep(mode, len(self.keys))
         self.cval = ensure_tuple_rep(cval, len(self.keys))
         self.dtype = ensure_tuple_rep(dtype, len(self.keys))
-        self.meta_key_format = meta_key_format
+        self.meta_key_format: str = meta_key_format
 
     def __call__(self, data):
-        d = dict(data)
+        d: dict = dict(data)
         for idx, key in enumerate(self.keys):
             affine_key = self.meta_key_format.format(key, "affine")
             # resample array of each corresponding key
@@ -119,7 +129,12 @@ class Orientationd(MapTransform):
     """
 
     def __init__(
-        self, keys, axcodes=None, as_closest_canonical=False, labels=tuple(zip("LPI", "RAS")), meta_key_format="{}.{}"
+        self,
+        keys,
+        axcodes=None,
+        as_closest_canonical: bool = False,
+        labels=tuple(zip("LPI", "RAS")),
+        meta_key_format: str = "{}.{}"
     ):
         """
         Args:
@@ -138,11 +153,11 @@ class Orientationd(MapTransform):
             `nibabel.orientations.ornt2axcodes`.
         """
         super().__init__(keys)
-        self.ornt_transform = Orientation(axcodes=axcodes, as_closest_canonical=as_closest_canonical, labels=labels)
-        self.meta_key_format = meta_key_format
+        self.ornt_transform: Orientation = Orientation(axcodes=axcodes, as_closest_canonical=as_closest_canonical, labels=labels)
+        self.meta_key_format: str = meta_key_format
 
     def __call__(self, data):
-        d = dict(data)
+        d: dict = dict(data)
         for key in self.keys:
             affine_key = self.meta_key_format.format(key, "affine")
             d[key], _, new_affine = self.ornt_transform(d[key], affine=d[affine_key])
@@ -155,7 +170,12 @@ class Rotate90d(MapTransform):
     Dictionary-based wrapper of :py:class:`monai.transforms.Rotate90`.
     """
 
-    def __init__(self, keys, k=1, spatial_axes=(0, 1)):
+    def __init__(
+        self,
+        keys,
+        k: int = 1,
+        spatial_axes: Tuple[int, int] = (0, 1)
+    ):
         """
         Args:
             k (int): number of times to rotate by 90 degrees.
@@ -166,7 +186,7 @@ class Rotate90d(MapTransform):
         self.rotator = Rotate90(k, spatial_axes)
 
     def __call__(self, data):
-        d = dict(data)
+        d: dict = dict(data)
         for key in self.keys:
             d[key] = self.rotator(d[key])
         return d
@@ -178,7 +198,13 @@ class RandRotate90d(Randomizable, MapTransform):
     in the plane specified by `spatial_axes`.
     """
 
-    def __init__(self, keys, prob=0.1, max_k=3, spatial_axes=(0, 1)):
+    def __init__(
+        self,
+        keys,
+        prob: float = 0.1,
+        max_k: int = 3,
+        spatial_axes: Tuple[int, int] = (0, 1)
+    ):
         """
         Args:
             keys (hashable items): keys of the corresponding items to be transformed.
@@ -192,23 +218,23 @@ class RandRotate90d(Randomizable, MapTransform):
         """
         super().__init__(keys)
 
-        self.prob = min(max(prob, 0.0), 1.0)
-        self.max_k = max_k
-        self.spatial_axes = spatial_axes
+        self.prob: float = min(max(prob, 0.0), 1.0)
+        self.max_k: int = max_k
+        self.spatial_axes: Tuple[int, int] = spatial_axes
 
-        self._do_transform = False
-        self._rand_k = 0
+        self._do_transform: bool = False
+        self._rand_k: int = 0
 
     def randomize(self):
-        self._rand_k = self.R.randint(self.max_k) + 1
-        self._do_transform = self.R.random() < self.prob
+        self._rand_k: int = self.R.randint(self.max_k) + 1
+        self._do_transform: bool = self.R.random() < self.prob
 
     def __call__(self, data):
         self.randomize()
         if not self._do_transform:
             return data
 
-        rotator = Rotate90(self._rand_k, self.spatial_axes)
+        rotator: Rotate90 = Rotate90(self._rand_k, self.spatial_axes)
         d = dict(data)
         for key in self.keys:
             d[key] = rotator(d[key])
@@ -238,13 +264,13 @@ class Resized(MapTransform):
     def __init__(
         self,
         keys,
-        spatial_size,
-        interp_order=1,
-        mode="reflect",
-        cval=0,
-        clip=True,
-        preserve_range=True,
-        anti_aliasing=True,
+        spatial_size: Union[tuple, list],
+        interp_order: Union[InterpolationCode, Sequence[InterpolationCode]] = 1,
+        mode: Union[str, Sequence[str]] = "reflect",
+        cval: Union[float, Sequence[float]] = 0,
+        clip: Union[bool, Sequence[bool]] = True,
+        preserve_range: Union[bool, Sequence[bool]] = True,
+        anti_aliasing: Union[bool, Sequence[bool]] = True,
     ):
         super().__init__(keys)
         self.interp_order = ensure_tuple_rep(interp_order, len(self.keys))
@@ -254,10 +280,10 @@ class Resized(MapTransform):
         self.preserve_range = ensure_tuple_rep(preserve_range, len(self.keys))
         self.anti_aliasing = ensure_tuple_rep(anti_aliasing, len(self.keys))
 
-        self.resizer = Resize(spatial_size=spatial_size)
+        self.resizer: Resize = Resize(spatial_size=spatial_size)
 
     def __call__(self, data):
-        d = dict(data)
+        d: dict = dict(data)
         for idx, key in enumerate(self.keys):
             d[key] = self.resizer(
                 d[key],
@@ -279,16 +305,16 @@ class RandAffined(Randomizable, MapTransform):
     def __init__(
         self,
         keys,
-        spatial_size,
-        prob=0.1,
-        rotate_range=None,
-        shear_range=None,
-        translate_range=None,
-        scale_range=None,
-        mode="bilinear",
-        padding_mode="zeros",
-        as_tensor_output=True,
-        device=None,
+        spatial_size: Union[Tuple[int], List[int]],
+        prob: float = 0.1,
+        rotate_range: Optional[Sequence[float]] = None,
+        shear_range: Optional[Sequence[float]] = None,
+        translate_range: Optional[Sequence[float]] = None,
+        scale_range: Optional[Sequence[float]] = None,
+        mode: Union[str, Sequence[str]] = "reflect",
+        padding_mode: Union[str, Sequence[str]] = "zeros",
+        as_tensor_output: bool = True,
+        device: torch.device = None,
     ):
         """
         Args:
@@ -326,7 +352,7 @@ class RandAffined(Randomizable, MapTransform):
         self.padding_mode = ensure_tuple_rep(padding_mode, len(self.keys))
         self.mode = ensure_tuple_rep(mode, len(self.keys))
 
-    def set_random_state(self, seed=None, state=None):
+    def set_random_state(self, seed: Optional[int] = None, state: Optional[np.random.RandomState] = None):
         self.rand_affine.set_random_state(seed, state)
         super().set_random_state(seed, state)
         return self
@@ -335,7 +361,7 @@ class RandAffined(Randomizable, MapTransform):
         self.rand_affine.randomize()
 
     def __call__(self, data):
-        d = dict(data)
+        d: dict = dict(data)
         self.randomize()
 
         spatial_size = self.rand_affine.spatial_size
@@ -357,18 +383,18 @@ class Rand2DElasticd(Randomizable, MapTransform):
     def __init__(
         self,
         keys,
-        spatial_size,
-        spacing,
-        magnitude_range,
-        prob=0.1,
-        rotate_range=None,
-        shear_range=None,
-        translate_range=None,
-        scale_range=None,
-        mode="bilinear",
-        padding_mode="zeros",
-        as_tensor_output=False,
-        device=None,
+        spatial_size: Tuple[int, int],
+        spacing: Tuple[int, int],
+        magnitude_range: Tuple[int, int],
+        prob: float = 0.1,
+        rotate_range: Optional[Sequence[float]] = None,
+        shear_range: Optional[Sequence[float]] = None,
+        translate_range: Optional[Sequence[float]] = None,
+        scale_range: Optional[Sequence[float]] = None,
+        mode: Union[str, Sequence[str]] = "bilinear",
+        padding_mode: Union[str, Sequence[str]] = "zeros",
+        as_tensor_output: bool = False,
+        device: torch.device = None,
     ):
         """
         Args:
@@ -409,7 +435,7 @@ class Rand2DElasticd(Randomizable, MapTransform):
         self.padding_mode = ensure_tuple_rep(padding_mode, len(self.keys))
         self.mode = ensure_tuple_rep(mode, len(self.keys))
 
-    def set_random_state(self, seed=None, state=None):
+    def set_random_state(self, seed: Optional[int] = None, state: Optional[np.random.RandomState] = None):
         self.rand_2d_elastic.set_random_state(seed, state)
         super().set_random_state(seed, state)
         return self
@@ -418,7 +444,7 @@ class Rand2DElasticd(Randomizable, MapTransform):
         self.rand_2d_elastic.randomize(spatial_size)
 
     def __call__(self, data):
-        d = dict(data)
+        d: dict = dict(data)
         spatial_size = self.rand_2d_elastic.spatial_size
         self.randomize(spatial_size)
 
@@ -444,18 +470,18 @@ class Rand3DElasticd(Randomizable, MapTransform):
     def __init__(
         self,
         keys,
-        spatial_size,
-        sigma_range,
-        magnitude_range,
-        prob=0.1,
-        rotate_range=None,
-        shear_range=None,
-        translate_range=None,
-        scale_range=None,
-        mode="bilinear",
-        padding_mode="zeros",
-        as_tensor_output=False,
-        device=None,
+        spatial_size: Tuple[int, int, int],
+        sigma_range: Tuple[int, int],
+        magnitude_range: Tuple[int, int],
+        prob: float = 0.1,
+        rotate_range: Optional[Sequence[float]] = None,
+        shear_range: Optional[Sequence[float]] = None,
+        translate_range: Optional[Sequence[float]] = None,
+        scale_range: Optional[Sequence[float]] = None,
+        mode: Union[str, Sequence[str]] = "bilinear",
+        padding_mode: Union[str, Sequence[str]] = "zeros",
+        as_tensor_output: bool = False,
+        device: torch.device = None,
     ):
         """
         Args:
@@ -497,7 +523,7 @@ class Rand3DElasticd(Randomizable, MapTransform):
         self.padding_mode = ensure_tuple_rep(padding_mode, len(self.keys))
         self.mode = ensure_tuple_rep(mode, len(self.keys))
 
-    def set_random_state(self, seed=None, state=None):
+    def set_random_state(self, seed: Optional[int] = None, state: Optional[np.random.RandomState] = None):
         self.rand_3d_elastic.set_random_state(seed, state)
         super().set_random_state(seed, state)
         return self
@@ -506,7 +532,7 @@ class Rand3DElasticd(Randomizable, MapTransform):
         self.rand_3d_elastic.randomize(grid_size)
 
     def __call__(self, data):
-        d = dict(data)
+        d: dict = dict(data)
         spatial_size = self.rand_3d_elastic.spatial_size
         self.randomize(spatial_size)
         grid = create_grid(spatial_size)
@@ -535,12 +561,12 @@ class Flipd(MapTransform):
         spatial_axis (None, int or tuple of ints): Spatial axes along which to flip over. Default is None.
     """
 
-    def __init__(self, keys, spatial_axis=None):
+    def __init__(self, keys: dict, spatial_axis: Optional[Union[int, Tuple[int]]] = None):
         super().__init__(keys)
-        self.flipper = Flip(spatial_axis=spatial_axis)
+        self.flipper: Flip = Flip(spatial_axis=spatial_axis)
 
     def __call__(self, data):
-        d = dict(data)
+        d: dict = dict(data)
         for key in self.keys:
             d[key] = self.flipper(d[key])
         return d
@@ -557,20 +583,20 @@ class RandFlipd(Randomizable, MapTransform):
         spatial_axis (None, int or tuple of ints): Spatial axes along which to flip over. Default is None.
     """
 
-    def __init__(self, keys, prob=0.1, spatial_axis=None):
+    def __init__(self, keys: dict, prob: float = 0.1, spatial_axis: Optional[Union[int, Tuple[int]]] = None):
         super().__init__(keys)
-        self.spatial_axis = spatial_axis
-        self.prob = prob
+        self.spatial_axis: Optional[Union[int, Tuple[int]]] = spatial_axis
+        self.prob: float = prob
 
-        self._do_transform = False
-        self.flipper = Flip(spatial_axis=spatial_axis)
+        self._do_transform: bool = False
+        self.flipper: Flip = Flip(spatial_axis=spatial_axis)
 
     def randomize(self):
-        self._do_transform = self.R.random_sample() < self.prob
+        self._do_transform: bool = self.R.random_sample() < self.prob
 
     def __call__(self, data):
         self.randomize()
-        d = dict(data)
+        d: dict = dict(data)
         if not self._do_transform:
             return d
         for key in self.keys:
@@ -599,17 +625,17 @@ class Rotated(MapTransform):
 
     def __init__(
         self,
-        keys,
-        angle,
-        spatial_axes=(0, 1),
-        reshape=True,
-        interp_order=InterpolationCode.LINEAR,
-        mode="constant",
-        cval=0,
-        prefilter=True,
+        keys: dict,
+        angle: float,
+        spatial_axes: Tuple[int, int] = (0, 1),
+        reshape: bool = True,
+        interp_order: Union[InterpolationCode, Sequence[InterpolationCode]] = InterpolationCode.LINEAR,
+        mode: Union[str, Sequence[str]] = "constant",
+        cval: Union[float, Sequence[float]] = 0,
+        prefilter: bool = True,
     ):
         super().__init__(keys)
-        self.rotator = Rotate(angle=angle, spatial_axes=spatial_axes, reshape=reshape)
+        self.rotator: Rotate = Rotate(angle=angle, spatial_axes=spatial_axes, reshape=reshape)
 
         self.interp_order = ensure_tuple_rep(interp_order, len(self.keys))
         self.mode = ensure_tuple_rep(mode, len(self.keys))
@@ -617,7 +643,7 @@ class Rotated(MapTransform):
         self.prefilter = ensure_tuple_rep(prefilter, len(self.keys))
 
     def __call__(self, data):
-        d = dict(data)
+        d: dict = dict(data)
         for idx, key in enumerate(self.keys):
             d[key] = self.rotator(
                 d[key],
@@ -653,20 +679,20 @@ class RandRotated(Randomizable, MapTransform):
     def __init__(
         self,
         keys,
-        degrees,
-        prob=0.1,
-        spatial_axes=(0, 1),
-        reshape=True,
-        interp_order=InterpolationCode.LINEAR,
-        mode="constant",
-        cval=0,
-        prefilter=True,
+        degrees: Union[float, Tuple[float]],
+        prob: float = 0.1,
+        spatial_axes: Tuple[int, int] = (0, 1),
+        reshape: bool = True,
+        interp_order: Union[InterpolationCode, Tuple[InterpolationCode]] = InterpolationCode.LINEAR,
+        mode: Union[str, Tuple[str]] = "constant",
+        cval: Union[float, Tuple[float]] = 0,
+        prefilter: Union[bool, Tuple[bool]] = True,
     ):
         super().__init__(keys)
-        self.prob = prob
-        self.degrees = degrees
-        self.reshape = reshape
-        self.spatial_axes = spatial_axes
+        self.prob: float = prob
+        self.degrees: Union[float, Tuple[float]] = degrees
+        self.reshape: bool = reshape
+        self.spatial_axes: Tuple[int, int] = spatial_axes
 
         self.interp_order = ensure_tuple_rep(interp_order, len(self.keys))
         self.mode = ensure_tuple_rep(mode, len(self.keys))
@@ -677,19 +703,19 @@ class RandRotated(Randomizable, MapTransform):
             self.degrees = (-self.degrees, self.degrees)
         assert len(self.degrees) == 2, "degrees should be a number or pair of numbers."
 
-        self._do_transform = False
-        self.angle = None
+        self._do_transform: bool = False
+        self.angle: Optional[float] = None
 
     def randomize(self):
-        self._do_transform = self.R.random_sample() < self.prob
-        self.angle = self.R.uniform(low=self.degrees[0], high=self.degrees[1])
+        self._do_transform: bool = self.R.random_sample() < self.prob
+        self.angle: Optional[float] = self.R.uniform(low=self.degrees[0], high=self.degrees[1])
 
     def __call__(self, data):
         self.randomize()
-        d = dict(data)
+        d: dict = dict(data)
         if not self._do_transform:
             return d
-        rotator = Rotate(angle=self.angle, spatial_axes=self.spatial_axes, reshape=self.reshape)
+        rotator: Rotate = Rotate(angle=self.angle, spatial_axes=self.spatial_axes, reshape=self.reshape)
         for idx, key in enumerate(self.keys):
             d[key] = rotator(
                 d[key],
@@ -720,16 +746,16 @@ class Zoomd(MapTransform):
     def __init__(
         self,
         keys,
-        zoom,
-        interp_order=InterpolationCode.SPLINE3,
-        mode="constant",
-        cval=0,
-        prefilter=True,
-        use_gpu=False,
-        keep_size=False,
+        zoom: Union[float, Sequence[float]],
+        interp_order: Union[InterpolationCode, Sequence[InterpolationCode]] = InterpolationCode.SPLINE3,
+        mode: Union[str, Sequence[str]] = "constant",
+        cval: Union[float, Sequence[float]] = 0,
+        prefilter: Union[bool, Sequence[bool]] = True,
+        use_gpu: bool = False,
+        keep_size: bool = False,
     ):
         super().__init__(keys)
-        self.zoomer = Zoom(zoom=zoom, use_gpu=use_gpu, keep_size=keep_size)
+        self.zoomer: Zoom = Zoom(zoom=zoom, use_gpu=use_gpu, keep_size=keep_size)
 
         self.interp_order = ensure_tuple_rep(interp_order, len(self.keys))
         self.mode = ensure_tuple_rep(mode, len(self.keys))
@@ -737,7 +763,7 @@ class Zoomd(MapTransform):
         self.prefilter = ensure_tuple_rep(prefilter, len(self.keys))
 
     def __call__(self, data):
-        d = dict(data)
+        d: dict = dict(data)
         for idx, key in enumerate(self.keys):
             d[key] = self.zoomer(
                 d[key],
@@ -774,46 +800,46 @@ class RandZoomd(Randomizable, MapTransform):
     def __init__(
         self,
         keys,
-        prob=0.1,
-        min_zoom=0.9,
-        max_zoom=1.1,
-        interp_order=InterpolationCode.SPLINE3,
-        mode="constant",
-        cval=0,
-        prefilter=True,
-        use_gpu=False,
-        keep_size=False,
+        prob: float = 0.1,
+        min_zoom: Union[float, Sequence[float]] = 0.9,
+        max_zoom: Union[float, Sequence[float]] = 1.1,
+        interp_order: Union[InterpolationCode, Sequence[InterpolationCode]] = InterpolationCode.SPLINE3,
+        mode: Union[str, Sequence[str]] = "constant",
+        cval: Union[float, Sequence[float]] = 0,
+        prefilter: Union[bool, Sequence[bool]] = True,
+        use_gpu: bool = False,
+        keep_size: bool = False,
     ):
         super().__init__(keys)
         if hasattr(min_zoom, "__iter__") and hasattr(max_zoom, "__iter__"):
             assert len(min_zoom) == len(max_zoom), "min_zoom and max_zoom must have same length."
-        self.min_zoom = min_zoom
-        self.max_zoom = max_zoom
-        self.prob = prob
-        self.use_gpu = use_gpu
-        self.keep_size = keep_size
+        self.min_zoom: Union[float, Sequence[float]] = min_zoom
+        self.max_zoom: Union[float, Sequence[float]] = max_zoom
+        self.prob: float = prob
+        self.use_gpu: bool = use_gpu
+        self.keep_size: bool = keep_size
 
         self.interp_order = ensure_tuple_rep(interp_order, len(self.keys))
         self.mode = ensure_tuple_rep(mode, len(self.keys))
         self.cval = ensure_tuple_rep(cval, len(self.keys))
         self.prefilter = ensure_tuple_rep(prefilter, len(self.keys))
 
-        self._do_transform = False
-        self._zoom = None
+        self._do_transform: bool = False
+        self._zoom: Union[float, Sequence[float]] = None
 
     def randomize(self):
-        self._do_transform = self.R.random_sample() < self.prob
+        self._do_transform: bool = self.R.random_sample() < self.prob
         if hasattr(self.min_zoom, "__iter__"):
-            self._zoom = (self.R.uniform(l, h) for l, h in zip(self.min_zoom, self.max_zoom))
+            self._zoom: Union[float, Sequence[float]] = (self.R.uniform(l, h) for l, h in zip(self.min_zoom, self.max_zoom))
         else:
-            self._zoom = self.R.uniform(self.min_zoom, self.max_zoom)
+            self._zoom: Union[float, Sequence[float]] = self.R.uniform(self.min_zoom, self.max_zoom)
 
     def __call__(self, data):
         self.randomize()
-        d = dict(data)
+        d: dict = dict(data)
         if not self._do_transform:
             return d
-        zoomer = Zoom(self._zoom, use_gpu=self.use_gpu, keep_size=self.keep_size)
+        zoomer: Zoom = Zoom(self._zoom, use_gpu=self.use_gpu, keep_size=self.keep_size)
         for idx, key in enumerate(self.keys):
             d[key] = zoomer(
                 d[key],

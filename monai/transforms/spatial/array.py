@@ -1221,7 +1221,7 @@ class Rand3DElastic(Randomizable, Transform):
         shear_range: Optional[Sequence[float]] = None,
         translate_range: Optional[Sequence[float]] = None,
         scale_range: Optional[Sequence[float]] = None,
-        spatial_size: Optional[Tuple[int, int]] = None,
+        spatial_size: Optional[Tuple[int, int, int]] = None,
         mode: str = "bilinear",
         padding_mode: str = "zeros",
         as_tensor_output: bool = False,
@@ -1255,7 +1255,7 @@ class Rand3DElastic(Randomizable, Transform):
 
         self.sigma_range: Tuple[int, int] = sigma_range
         self.magnitude_range: Tuple[int, int] = magnitude_range
-        self.spatial_size: Optional[Tuple[int, int]] = spatial_size
+        self.spatial_size: Optional[Tuple[int, int, int]] = spatial_size
         self.padding_mode: str = padding_mode
         self.mode: str = mode
         self.device: torch.device = device
