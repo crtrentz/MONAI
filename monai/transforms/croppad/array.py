@@ -12,12 +12,13 @@
 A collection of "vanilla" transforms for crop and pad operations
 https://github.com/Project-MONAI/MONAI/wiki/MONAI_Design
 """
+
 from typing import Union, Optional, Callable
 
 import numpy as np
 
 from monai.data.utils import get_random_patch, get_valid_patch_size
-from monai.transforms.compose import Transform, Randomizable
+from monai.transforms.compose import Transform, Randomizable, TransformDataType
 from monai.transforms.utils import generate_spatial_bounding_box
 from monai.utils.misc import ensure_tuple, ensure_tuple_rep
 
@@ -36,11 +37,11 @@ class SpatialPad(Transform):
     """
 
     def __init__(self, spatial_size: list, method: str = "symmetric", mode: str = "constant"):
-        self.spatial_size: tuple = ensure_tuple(spatial_size)
+        self.spatial_size = ensure_tuple(spatial_size)
         assert method in ("symmetric", "end"), "unsupported padding type."
-        self.method: str = method
+        self.method = method
         assert isinstance(mode, str), "mode must be str."
-        self.mode: str = mode
+        self.mode = mode
 
     def _determine_data_pad_width(self, data_shape):
         if self.method == "symmetric":
@@ -52,7 +53,7 @@ class SpatialPad(Transform):
         else:
             return [(0, max(self.spatial_size[i] - data_shape[i], 0)) for i in range(len(self.spatial_size))]
 
-    def __call__(self, img, mode=None):
+    def __call__(self, img: TransformDataType, mode: Optional[str] = None):
         data_pad_width = self._determine_data_pad_width(img.shape[1:])
         all_pad_width = [(0, 0)] + data_pad_width
         img = np.pad(img, all_pad_width, mode=mode or self.mode)
@@ -96,7 +97,7 @@ class SpatialCrop(Transform):
         assert np.all(self.roi_end > 0), "all elements of roi_end must be positive."
         assert np.all(self.roi_end >= self.roi_start), "invalid roi range."
 
-    def __call__(self, img):
+    def __call__(self, img: TransformDataType):
         max_end = img.shape[1:]
         sd = min(len(self.roi_start), len(max_end))
         assert np.all(max_end[:sd] >= self.roi_start[:sd]), "roi start out of image space."
@@ -115,9 +116,9 @@ class CenterSpatialCrop(Transform):
     """
 
     def __init__(self, roi_size: Union[list, tuple]):
-        self.roi_size: Union[list, tuple] = roi_size
+        self.roi_size = roi_size
 
-    def __call__(self, img):
+    def __call__(self, img: TransformDataType):
         center = [i // 2 for i in img.shape[1:]]
         cropper = SpatialCrop(roi_center=center, roi_size=self.roi_size)
         return cropper(img)
@@ -138,9 +139,9 @@ class RandSpatialCrop(Randomizable, Transform):
     """
 
     def __init__(self, roi_size: Union[list, tuple], random_center: bool = True, random_size: bool = True):
-        self.roi_size: Union[list, tuple] = roi_size
-        self.random_center: bool = random_center
-        self.random_size: bool = random_size
+        self.roi_size = roi_size
+        self.random_center = random_center
+        self.random_size = random_size
 
     def randomize(self, img_size):
         self._size = ensure_tuple_rep(self.roi_size, len(img_size))
@@ -150,7 +151,7 @@ class RandSpatialCrop(Randomizable, Transform):
             valid_size = get_valid_patch_size(img_size, self._size)
             self._slices = ensure_tuple(slice(None)) + get_random_patch(img_size, valid_size, self.R)
 
-    def __call__(self, img):
+    def __call__(self, img: TransformDataType):
         self.randomize(img.shape[1:])
         if self.random_center:
             return img[self._slices]
@@ -196,7 +197,7 @@ class CropForeground(Transform):
         self.channel_indexes = ensure_tuple(channel_indexes) if channel_indexes is not None else None
         self.margin = margin
 
-    def __call__(self, img):
+    def __call__(self, img: TransformDataType):
         box_start, box_end = generate_spatial_bounding_box(img, self.select_fn, self.channel_indexes, self.margin)
         cropper = SpatialCrop(roi_start=box_start, roi_end=box_end)
         return cropper(img)

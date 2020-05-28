@@ -81,17 +81,17 @@ class Randomizable(ABC):
             a Randomizable instance.
         """
         if seed is not None:
-            _seed: int = id(seed) if not isinstance(seed, int) else seed
-            self.R: np.random.RandomState = np.random.RandomState(_seed)
+            _seed = id(seed) if not isinstance(seed, int) else seed
+            self.R = np.random.RandomState(_seed)
             return self
 
         if state is not None:
             if not isinstance(state, np.random.RandomState):
                 raise ValueError(f"`state` must be a `np.random.RandomState`, got {type(state)}")
-            self.R: np.random.RandomState = state
+            self.R = state
             return self
 
-        self.R: np.random.RandomState = np.random.RandomState()
+        self.R = np.random.RandomState()
         return self
 
     @abstractmethod
@@ -171,10 +171,10 @@ class Compose(Randomizable):
 
     def __init__(self, transforms: Optional[Union[list, tuple]] = None):
         if transforms is None:
-            transforms: list = []
+            transforms = []
         if not isinstance(transforms, (list, tuple)):
             raise ValueError("Parameters 'transforms' must be a list or tuple")
-        self.transforms: Union[list, tuple] = transforms
+        self.transforms = transforms
         self.set_random_state(seed=get_seed())
 
     def set_random_state(self, seed: Optional[int] = None, state: Optional[np.random.RandomState] = None):

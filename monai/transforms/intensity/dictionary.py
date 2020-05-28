@@ -15,6 +15,9 @@ defined in :py:class:`monai.transforms.intensity.array`.
 Class names are ended with 'd' to denote dictionary-based transforms.
 """
 
+from typing import Union, Tuple, List, Optional
+
+import numpy as np
 from monai.transforms.compose import MapTransform, Randomizable
 from monai.transforms.intensity.array import (
     NormalizeIntensity,
@@ -33,12 +36,12 @@ class RandGaussianNoised(Randomizable, MapTransform):
     Args:
         keys (hashable items): keys of the corresponding items to be transformed.
             See also: :py:class:`monai.transforms.compose.MapTransform`
-        prob (float): Probability to add Gaussian noise.
+        prob: Probability to add Gaussian noise.
         mean (float or array of floats): Mean or “centre” of the distribution.
-        std (float): Standard deviation (spread) of distribution.
+        std: Standard deviation (spread) of distribution.
     """
 
-    def __init__(self, keys, prob=0.1, mean=0.0, std=0.1):
+    def __init__(self, keys, prob: float = 0.1, mean=0.0, std: float = 0.1):
         super().__init__(keys)
         self.prob = prob
         self.mean = mean
@@ -67,12 +70,12 @@ class ShiftIntensityd(MapTransform):
     dictionary-based wrapper of :py:class:`monai.transforms.ShiftIntensity`.
     """
 
-    def __init__(self, keys, offset):
+    def __init__(self, keys, offset: Union[int, float]):
         """
         Args:
             keys (hashable items): keys of the corresponding items to be transformed.
                 See also: :py:class:`monai.transforms.compose.MapTransform`
-            offset (int or float): offset value to shift the intensity of image.
+            offset: offset value to shift the intensity of image.
         """
         super().__init__(keys)
         self.shifter = ShiftIntensity(offset)
@@ -89,14 +92,19 @@ class RandShiftIntensityd(Randomizable, MapTransform):
     dictionary-based version :py:class:`monai.transforms.RandShiftIntensity`.
     """
 
-    def __init__(self, keys, offsets, prob=0.1):
+    def __init__(
+        self,
+        keys,
+        offsets: Union[int, float, List[int, int], List[float, float], Tuple[int, int], Tuple[float, float]],
+        prob: float = 0.1,
+    ):
         """
         Args:
             keys (hashable items): keys of the corresponding items to be transformed.
                 See also: :py:class:`monai.transforms.compose.MapTransform`
             offsets(int, float, tuple or list): offset range to randomly shift.
                 if single number, offset value is picked from (-offsets, offsets).
-            prob (float): probability of rotating.
+            prob: probability of rotating.
                 (Default 0.1, with 10% probability it returns a rotated array.)
         """
         super().__init__(keys)
@@ -127,14 +135,20 @@ class ScaleIntensityd(MapTransform):
     If `minv` and `maxv` not provided, use `factor` to scale image by ``v = v * (1 + factor)``.
     """
 
-    def __init__(self, keys, minv=0.0, maxv=1.0, factor=None):
+    def __init__(
+        self,
+        keys,
+        minv: Optional[Union[int, float]] = 0.0,
+        maxv: Optional[Union[int, float]] = 1.0,
+        factor: Optional[float] = None,
+    ):
         """
         Args:
             keys (hashable items): keys of the corresponding items to be transformed.
                 See also: :py:class:`monai.transforms.compose.MapTransform`
-            minv (int or float): minimum value of output data.
-            maxv (int or float): maximum value of output data.
-            factor (float): factor scale by ``v = v * (1 + factor)``.
+            minv: minimum value of output data.
+            maxv: maximum value of output data.
+            factor: factor scale by ``v = v * (1 + factor)``.
 
         """
         super().__init__(keys)
@@ -152,14 +166,14 @@ class RandScaleIntensityd(Randomizable, MapTransform):
     dictionary-based version :py:class:`monai.transforms.RandScaleIntensity`.
     """
 
-    def __init__(self, keys, factors, prob=0.1):
+    def __init__(self, keys, factors: Union[float, List[float, float], Tuple[float, float]], prob: float = 0.1):
         """
         Args:
             keys (hashable items): keys of the corresponding items to be transformed.
                 See also: :py:class:`monai.transforms.compose.MapTransform`
             factors(float, tuple or list): factor range to randomly scale by ``v = v * (1 + factor)``.
                 if single number, factor value is picked from (-factors, factors).
-            prob (float): probability of rotating.
+            prob: probability of rotating.
                 (Default 0.1, with 10% probability it returns a rotated array.)
 
         """
@@ -193,14 +207,21 @@ class NormalizeIntensityd(MapTransform):
     Args:
         keys (hashable items): keys of the corresponding items to be transformed.
             See also: monai.transforms.MapTransform
-        subtrahend (ndarray): the amount to subtract by (usually the mean)
-        divisor (ndarray): the amount to divide by (usually the standard deviation)
-        nonzero (bool): whether only normalize non-zero values.
-        channel_wise (bool): if using calculated mean and std, calculate on each channel separately
+        subtrahend: the amount to subtract by (usually the mean)
+        divisor: the amount to divide by (usually the standard deviation)
+        nonzero: whether only normalize non-zero values.
+        channel_wise: if using calculated mean and std, calculate on each channel separately
             or calculate on the entire image directly.
     """
 
-    def __init__(self, keys, subtrahend=None, divisor=None, nonzero=False, channel_wise=False):
+    def __init__(
+        self,
+        keys,
+        subtrahend: Optional[np.ndarray] = None,
+        divisor: Optional[np.ndarray] = None,
+        nonzero: bool = False,
+        channel_wise: bool = False,
+    ):
         super().__init__(keys)
         self.normalizer = NormalizeIntensity(subtrahend, divisor, nonzero, channel_wise)
 
@@ -218,12 +239,12 @@ class ThresholdIntensityd(MapTransform):
     Args:
         keys (hashable items): keys of the corresponding items to be transformed.
             See also: monai.transforms.MapTransform
-        threshold (float or int): the threshold to filter intensity values.
-        above (bool): filter values above the threshold or below the threshold, default is True.
-        cval (float or int): value to fill the remaining parts of the image, default is 0.
+        threshold: the threshold to filter intensity values.
+        above: filter values above the threshold or below the threshold, default is True.
+        cval: value to fill the remaining parts of the image, default is 0.
     """
 
-    def __init__(self, keys, threshold, above=True, cval=0):
+    def __init__(self, keys, threshold: Union[float, int], above: bool = True, cval: Union[float, int] = 0):
         super().__init__(keys)
         self.filter = ThresholdIntensity(threshold, above, cval)
 
@@ -241,14 +262,22 @@ class ScaleIntensityRanged(MapTransform):
     Args:
         keys (hashable items): keys of the corresponding items to be transformed.
             See also: monai.transforms.MapTransform
-        a_min (int or float): intensity original range min.
-        a_max (int or float): intensity original range max.
-        b_min (int or float): intensity target range min.
-        b_max (int or float): intensity target range max.
-        clip (bool): whether to perform clip after scaling.
+        a_min: intensity original range min.
+        a_max: intensity original range max.
+        b_min: intensity target range min.
+        b_max: intensity target range max.
+        clip: whether to perform clip after scaling.
     """
 
-    def __init__(self, keys, a_min, a_max, b_min, b_max, clip=False):
+    def __init__(
+        self,
+        keys,
+        a_min: Union[int, float],
+        a_max: Union[int, float],
+        b_min: Union[int, float],
+        b_max: Union[int, float],
+        clip: bool = False,
+    ):
         super().__init__(keys)
         self.scaler = ScaleIntensityRange(a_min, a_max, b_min, b_max, clip)
 
@@ -267,10 +296,10 @@ class AdjustContrastd(MapTransform):
         `x = ((x - min) / intensity_range) ^ gamma * intensity_range + min`
 
     Args:
-        gamma (float): gamma value to adjust the contrast as function.
+        gamma: gamma value to adjust the contrast as function.
     """
 
-    def __init__(self, keys, gamma):
+    def __init__(self, keys, gamma: float):
         super().__init__(keys)
         self.adjuster = AdjustContrast(gamma)
 
@@ -291,12 +320,14 @@ class RandAdjustContrastd(Randomizable, MapTransform):
     Args:
         keys (hashable items): keys of the corresponding items to be transformed.
             See also: monai.transforms.MapTransform
-        prob (float): Probability of adjustment.
+        prob: Probability of adjustment.
         gamma (tuple of float or float): Range of gamma values.
             If single number, value is picked from (0.5, gamma), default is (0.5, 4.5).
     """
 
-    def __init__(self, keys, prob=0.1, gamma=(0.5, 4.5)):
+    def __init__(
+        self, keys, prob: float = 0.1, gamma: Union[float, Tuple[float, float], List[float, float]] = (0.5, 4.5)
+    ):
         super().__init__(keys)
         self.prob = prob
         if not isinstance(gamma, (tuple, list)):

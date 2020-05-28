@@ -13,8 +13,10 @@ A collection of "vanilla" transforms for the model output tensors
 https://github.com/Project-MONAI/MONAI/wiki/MONAI_Design
 """
 
+from typing import Optional, Callable, List, Tuple, Union
+
 import torch
-from monai.transforms.compose import Transform
+from monai.transforms.compose import Transform, TransformDataType
 from monai.networks.utils import one_hot
 from monai.transforms.utils import get_largest_connected_component_mask
 
@@ -27,16 +29,16 @@ class SplitChannel(Transform):
     (batch_size, num_channels, spatial_dim_1[, spatial_dim_2, ...])
 
     Args:
-        to_onehot (bool): whether to convert the data to One-Hot format first, default is False.
-        num_classes (int): the class number used to convert to One-Hot format if `to_onehot` is True.
+        to_onehot: whether to convert the data to One-Hot format first, default is False.
+        num_classes: the class number used to convert to One-Hot format if `to_onehot` is True.
 
     """
 
-    def __init__(self, to_onehot=False, num_classes=None):
+    def __init__(self, to_onehot: bool = False, num_classes: Optional[int] = None):
         self.to_onehot = to_onehot
         self.num_classes = num_classes
 
-    def __call__(self, img, to_onehot=None, num_classes=None):
+    def __call__(self, img: TransformDataType, to_onehot: Optional[bool] = None, num_classes: Optional[int] = None):
         if to_onehot or self.to_onehot:
             if num_classes is None:
                 num_classes = self.num_classes
@@ -55,19 +57,25 @@ class Activations(Transform):
     Add activation operations to the model output, typically `Sigmoid` or `Softmax`.
 
     Args:
-        sigmoid (bool): whether to execute sigmoid function on model output before transform.
-        softmax (bool): whether to execute softmax function on model output before transform.
-        other (Callable): callable function to execute other activation layers, for example:
+        sigmoid: whether to execute sigmoid function on model output before transform.
+        softmax: whether to execute softmax function on model output before transform.
+        other: callable function to execute other activation layers, for example:
             `other = lambda x: torch.tanh(x)`
 
     """
 
-    def __init__(self, sigmoid=False, softmax=False, other=None):
+    def __init__(self, sigmoid: bool = False, softmax: bool = False, other: Optional[Callable] = None):
         self.sigmoid = sigmoid
         self.softmax = softmax
         self.other = other
 
-    def __call__(self, img, sigmoid=None, softmax=None, other=None):
+    def __call__(
+        self,
+        img: TransformDataType,
+        sigmoid: Optional[bool] = None,
+        softmax: Optional[bool] = None,
+        other: Optional[Callable] = None,
+    ):
         if sigmoid is True and softmax is True:
             raise ValueError("sigmoid=True and softmax=True are not compatible.")
         if sigmoid or self.sigmoid:
@@ -92,22 +100,37 @@ class AsDiscrete(Transform):
         -  convert input value to One-Hot format
 
     Args:
-        argmax (bool): whether to execute argmax function on input data before transform.
-        to_onehot (bool): whether to convert input data into the one-hot format. Defaults to False.
-        n_classes (bool): the number of classes to convert to One-Hot format.
-        threshold_values (bool): whether threshold the float value to int number 0 or 1, default is False.
-        logit_thresh (float): the threshold value for thresholding operation, default is 0.5.
+        argmax: whether to execute argmax function on input data before transform.
+        to_onehot: whether to convert input data into the one-hot format. Defaults to False.
+        n_classes: the number of classes to convert to One-Hot format.
+        threshold_values: whether threshold the float value to int number 0 or 1, default is False.
+        logit_thresh: the threshold value for thresholding operation, default is 0.5.
 
     """
 
-    def __init__(self, argmax=False, to_onehot=False, n_classes=None, threshold_values=False, logit_thresh=0.5):
+    def __init__(
+        self,
+        argmax: bool = False,
+        to_onehot: bool = False,
+        n_classes: Optional[bool] = None,
+        threshold_values: bool = False,
+        logit_thresh: float = 0.5,
+    ):
         self.argmax = argmax
         self.to_onehot = to_onehot
         self.n_classes = n_classes
         self.threshold_values = threshold_values
         self.logit_thresh = logit_thresh
 
-    def __call__(self, img, argmax=None, to_onehot=None, n_classes=None, threshold_values=None, logit_thresh=None):
+    def __call__(
+        self,
+        img: TransformDataType,
+        argmax: Optional[bool] = None,
+        to_onehot: Optional[bool] = None,
+        n_classes: Optional[bool] = None,
+        threshold_values: Optional[bool] = None,
+        logit_thresh: Optional[float] = None,
+    ):
         if argmax or self.argmax:
             img = torch.argmax(img, dim=1, keepdim=True)
 
@@ -161,16 +184,22 @@ class KeepLargestConnectedComponent(Transform):
 
     """
 
-    def __init__(self, applied_values, independent=True, background=0, connectivity=None):
+    def __init__(
+        self,
+        applied_values: Union[List[int], Tuple[int]],
+        independent: bool = True,
+        background: int = 0,
+        connectivity: Optional[int] = None,
+    ):
         """
         Args:
-            applied_values (list or tuple of int): number list for applying the connected component on.
+            applied_values: number list for applying the connected component on.
                 The pixel whose value is not in this list will remain unchanged.
-            independent (bool): consider several labels as a whole or independent, default is `True`.
+            independent: consider several labels as a whole or independent, default is `True`.
                 Example use case would be segment label 1 is liver and label 2 is liver tumor, in that case
                 you want this "independent" to be specified as False.
-            background (int): Background pixel value. The over-segmented pixels will be set as this value.
-            connectivity (int): Maximum number of orthogonal hops to consider a pixel/voxel as a neighbor.
+            background: Background pixel value. The over-segmented pixels will be set as this value.
+            connectivity: Maximum number of orthogonal hops to consider a pixel/voxel as a neighbor.
                 Accepted values are ranging from  1 to input.ndim. If ``None``, a full
                 connectivity of ``input.ndim`` is used.
         """
@@ -182,7 +211,7 @@ class KeepLargestConnectedComponent(Transform):
         if background in applied_values:
             raise ValueError("Background pixel can't be in applied_values.")
 
-    def __call__(self, img):
+    def __call__(self, img: TransformDataType):
         """
         Args:
             img: shape must be (batch_size, 1, spatial_dim1[, spatial_dim2, ...]).

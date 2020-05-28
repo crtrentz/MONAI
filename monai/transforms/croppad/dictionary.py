@@ -14,6 +14,7 @@ defined in :py:class:`monai.transforms.croppad.array`.
 
 Class names are ended with 'd' to denote dictionary-based transforms.
 """
+
 from typing import Union, Sequence, Optional, Callable
 
 from monai.data.utils import get_random_patch, get_valid_patch_size
@@ -141,7 +142,7 @@ class RandSpatialCropd(Randomizable, MapTransform):
             self._slices = ensure_tuple(slice(None)) + get_random_patch(img_size, valid_size, self.R)
 
     def __call__(self, data):
-        d: dict = dict(data)
+        d = dict(data)
         self.randomize(d[self.keys[0]].shape[1:])  # image shape from the first data key
         for key in self.keys:
             if self.random_center:
@@ -218,7 +219,7 @@ class RandCropByPosNegLabeld(Randomizable, MapTransform):
 
     def __init__(
         self,
-        keys: list,
+        keys,
         label_key: str,
         size: Union[list, tuple],
         pos: Union[int, float] = 1,
@@ -237,12 +238,12 @@ class RandCropByPosNegLabeld(Randomizable, MapTransform):
             num_samples
         )
         assert num_samples >= 0, "num_samples must be greater than or equal to 0."
-        self.label_key: str = label_key
-        self.size: Union[list, tuple] = size
-        self.pos_ratio: float = float(pos) / (float(pos) + float(neg))
-        self.num_samples: int = num_samples
-        self.image_key: Optional[str] = image_key
-        self.image_threshold: Union[int, float] = image_threshold
+        self.label_key = label_key
+        self.size = size
+        self.pos_ratio = float(pos) / (float(pos) + float(neg))
+        self.num_samples = num_samples
+        self.image_key = image_key
+        self.image_threshold = image_threshold
         self.centers = None
 
     def randomize(self, label, image):
@@ -251,7 +252,7 @@ class RandCropByPosNegLabeld(Randomizable, MapTransform):
         )
 
     def __call__(self, data):
-        d: dict = dict(data)
+        d = dict(data)
         label = d[self.label_key]
         image = d[self.image_key] if self.image_key else None
         self.randomize(label, image)

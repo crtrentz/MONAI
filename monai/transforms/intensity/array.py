@@ -15,7 +15,7 @@ https://github.com/Project-MONAI/MONAI/wiki/MONAI_Design
 
 import numpy as np
 
-from monai.transforms.compose import Transform, Randomizable
+from monai.transforms.compose import Transform, Randomizable, TransformDataType
 from monai.transforms.utils import rescale_array
 from typing import Union, List, Tuple, Optional
 
@@ -30,17 +30,17 @@ class RandGaussianNoise(Randomizable, Transform):
     """
 
     def __init__(self, prob: float = 0.1, mean: Union[float, List[float]] = 0.0, std: float = 0.1):
-        self.prob: float = prob
-        self.mean: Union[float, List[float]] = mean
-        self.std: float = std
-        self._do_transform: bool = False
+        self.prob = prob
+        self.mean = mean
+        self.std = std
+        self._do_transform = False
         self._noise = None
 
     def randomize(self, im_shape):
         self._do_transform = self.R.random() < self.prob
         self._noise = self.R.normal(self.mean, self.R.uniform(0, self.std), size=im_shape)
 
-    def __call__(self, img):
+    def __call__(self, img: TransformDataType):
         self.randomize(img.shape)
         return img + self._noise.astype(img.dtype) if self._do_transform else img
 
@@ -49,13 +49,13 @@ class ShiftIntensity(Transform):
     """Shift intensity uniformly for the entire image with specified `offset`.
 
     Args:
-        offset (int or float): offset value to shift the intensity of image.
+        offset: offset value to shift the intensity of image.
     """
 
-    def __init__(self, offset):
+    def __init__(self, offset: Union[int, float]):
         self.offset = offset
 
-    def __call__(self, img):
+    def __call__(self, img: TransformDataType):
         return (img + self.offset).astype(img.dtype)
 
 
@@ -70,18 +70,16 @@ class RandShiftIntensity(Randomizable, Transform):
                 if single number, offset value is picked from (-offsets, offsets).
             prob: probability of shift.
         """
-        self.offsets: Union[int, float, Tuple, List] = (-offsets, offsets) if not isinstance(
-            offsets, (list, tuple)
-        ) else offsets
+        self.offsets = (-offsets, offsets) if not isinstance(offsets, (list, tuple)) else offsets
         assert len(self.offsets) == 2, "offsets should be a number or pair of numbers."
-        self.prob: float = prob
-        self._do_transform: bool = False
+        self.prob = prob
+        self._do_transform = False
 
     def randomize(self):
         self._offset = self.R.uniform(low=self.offsets[0], high=self.offsets[1])
         self._do_transform = self.R.random() < self.prob
 
-    def __call__(self, img):
+    def __call__(self, img: TransformDataType):
         self.randomize()
         if not self._do_transform:
             return img
@@ -103,15 +101,15 @@ class ScaleIntensity(Transform):
     ):
         """
         Args:
-            minv (int or float): minimum value of output data.
-            maxv (int or float): maximum value of output data.
-            factor (float): factor scale by ``v = v * (1 + factor)``.
+            minv: minimum value of output data.
+            maxv: maximum value of output data.
+            factor: factor scale by ``v = v * (1 + factor)``.
         """
         self.minv = minv
         self.maxv = maxv
         self.factor = factor
 
-    def __call__(self, img):
+    def __call__(self, img: TransformDataType):
         if self.minv is not None and self.maxv is not None:
             return rescale_array(img, self.minv, self.maxv, img.dtype)
         else:
@@ -124,7 +122,7 @@ class RandScaleIntensity(Randomizable, Transform):
     is randomly picked from (factors[0], factors[0]).
     """
 
-    def __init__(self, factors, prob=0.1):
+    def __init__(self, factors: Union[float, Tuple[float, float], List[float, float]], prob: float = 0.1):
         """
         Args:
             factors(float, tuple or list): factor range to randomly scale by ``v = v * (1 + factor)``.
@@ -141,7 +139,7 @@ class RandScaleIntensity(Randomizable, Transform):
         self.factor = self.R.uniform(low=self.factors[0], high=self.factors[1])
         self._do_transform = self.R.random() < self.prob
 
-    def __call__(self, img):
+    def __call__(self, img: TransformDataType):
         self.randomize()
         if not self._do_transform:
             return img
@@ -157,14 +155,20 @@ class NormalizeIntensity(Transform):
     mean and std on each channel separately.
 
     Args:
-        subtrahend (ndarray): the amount to subtract by (usually the mean).
-        divisor (ndarray): the amount to divide by (usually the standard deviation).
-        nonzero (bool): whether only normalize non-zero values.
-        channel_wise (bool): if using calculated mean and std, calculate on each channel separately
+        subtrahend: the amount to subtract by (usually the mean).
+        divisor: the amount to divide by (usually the standard deviation).
+        nonzero: whether only normalize non-zero values.
+        channel_wise: if using calculated mean and std, calculate on each channel separately
             or calculate on the entire image directly.
     """
 
-    def __init__(self, subtrahend=None, divisor=None, nonzero=False, channel_wise=False):
+    def __init__(
+        self,
+        subtrahend: Optional[np.ndarray] = None,
+        divisor: Optional[np.ndarray] = None,
+        nonzero: bool = False,
+        channel_wise: bool = False,
+    ):
         if subtrahend is not None or divisor is not None:
             assert isinstance(subtrahend, np.ndarray) and isinstance(
                 divisor, np.ndarray
@@ -174,7 +178,7 @@ class NormalizeIntensity(Transform):
         self.nonzero = nonzero
         self.channel_wise = channel_wise
 
-    def _normalize(self, img):
+    def _normalize(self, img: np.ndarray):
         slices = (img != 0) if self.nonzero else np.ones(img.shape, dtype=np.bool_)
         if np.any(slices):
             if self.subtrahend is not None and self.divisor is not None:
@@ -183,7 +187,7 @@ class NormalizeIntensity(Transform):
                 img[slices] = (img[slices] - np.mean(img[slices])) / np.std(img[slices])
         return img
 
-    def __call__(self, img):
+    def __call__(self, img: TransformDataType):
         if self.channel_wise:
             for i, d in enumerate(img):
                 img[i] = self._normalize(d)
@@ -198,18 +202,18 @@ class ThresholdIntensity(Transform):
     And fill the remaining parts of the image to the `cval` value.
 
     Args:
-        threshold (float or int): the threshold to filter intensity values.
-        above (bool): filter values above the threshold or below the threshold, default is True.
-        cval (float or int): value to fill the remaining parts of the image, default is 0.
+        threshold: the threshold to filter intensity values.
+        above: filter values above the threshold or below the threshold, default is True.
+        cval: value to fill the remaining parts of the image, default is 0.
     """
 
-    def __init__(self, threshold, above=True, cval=0):
+    def __init__(self, threshold: Union[float, int], above: bool = True, cval: Union[float, int] = 0):
         assert isinstance(threshold, (float, int)), "must set the threshold to filter intensity."
         self.threshold = threshold
         self.above = above
         self.cval = cval
 
-    def __call__(self, img):
+    def __call__(self, img: TransformDataType):
         return np.where(img > self.threshold if self.above else img < self.threshold, img, self.cval).astype(img.dtype)
 
 
@@ -218,21 +222,28 @@ class ScaleIntensityRange(Transform):
     Scaling from [a_min, a_max] to [b_min, b_max] with clip option.
 
     Args:
-        a_min (int or float): intensity original range min.
-        a_max (int or float): intensity original range max.
-        b_min (int or float): intensity target range min.
-        b_max (int or float): intensity target range max.
-        clip (bool): whether to perform clip after scaling.
+        a_min: intensity original range min.
+        a_max: intensity original range max.
+        b_min: intensity target range min.
+        b_max: intensity target range max.
+        clip: whether to perform clip after scaling.
     """
 
-    def __init__(self, a_min, a_max, b_min, b_max, clip=False):
+    def __init__(
+        self,
+        a_min: Union[int, float],
+        a_max: Union[int, float],
+        b_min: Union[int, float],
+        b_max: Union[int, float],
+        clip: bool = False,
+    ):
         self.a_min = a_min
         self.a_max = a_max
         self.b_min = b_min
         self.b_max = b_max
         self.clip = clip
 
-    def __call__(self, img):
+    def __call__(self, img: TransformDataType):
         img = (img - self.a_min) / (self.a_max - self.a_min)
         img = img * (self.b_max - self.b_min) + self.b_min
         if self.clip:
@@ -246,14 +257,14 @@ class AdjustContrast(Transform):
         `x = ((x - min) / intensity_range) ^ gamma * intensity_range + min`
 
     Args:
-        gamma (float): gamma value to adjust the contrast as function.
+        gamma: gamma value to adjust the contrast as function.
     """
 
-    def __init__(self, gamma):
+    def __init__(self, gamma: float):
         assert isinstance(gamma, (float, int)), "gamma must be a float or int number."
-        self.gamma = gamma
+        self.gamma: float = gamma
 
-    def __call__(self, img):
+    def __call__(self, img: TransformDataType):
         epsilon = 1e-7
         img_min = img.min()
         img_range = img.max() - img_min
@@ -265,12 +276,12 @@ class RandAdjustContrast(Randomizable, Transform):
         `x = ((x - min) / intensity_range) ^ gamma * intensity_range + min`
 
     Args:
-        prob (float): Probability of adjustment.
-        gamma (tuple of float or float): Range of gamma values.
+        prob: Probability of adjustment.
+        gamma: Range of gamma values.
             If single number, value is picked from (0.5, gamma), default is (0.5, 4.5).
     """
 
-    def __init__(self, prob=0.1, gamma=(0.5, 4.5)):
+    def __init__(self, prob: float = 0.1, gamma: Union[float, Tuple[float, float], List[float, float]] = (0.5, 4.5)):
         self.prob = prob
         if not isinstance(gamma, (tuple, list)):
             assert gamma > 0.5, "if gamma is single number, must greater than 0.5 and value is picked from (0.5, gamma)"
@@ -286,7 +297,7 @@ class RandAdjustContrast(Randomizable, Transform):
         self._do_transform = self.R.random_sample() < self.prob
         self.gamma_value = self.R.uniform(low=self.gamma[0], high=self.gamma[1])
 
-    def __call__(self, img):
+    def __call__(self, img: TransformDataType):
         self.randomize()
         if not self._do_transform:
             return img

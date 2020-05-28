@@ -15,6 +15,8 @@ defined in :py:class:`monai.transforms.io.array`.
 Class names are ended with 'd' to denote dictionary-based transforms.
 """
 
+from typing import Optional
+
 import numpy as np
 
 from monai.transforms.compose import MapTransform
@@ -32,17 +34,22 @@ class LoadNiftid(MapTransform):
     """
 
     def __init__(
-        self, keys, as_closest_canonical=False, dtype=np.float32, meta_key_format="{}.{}", overwriting_keys=False
+        self,
+        keys,
+        as_closest_canonical: bool = False,
+        dtype: Optional[np.dtype] = np.float32,
+        meta_key_format: str = "{}.{}",
+        overwriting_keys: bool = False,
     ):
         """
         Args:
             keys (hashable items): keys of the corresponding items to be transformed.
                 See also: :py:class:`monai.transforms.compose.MapTransform`
-            as_closest_canonical (bool): if True, load the image as closest to canonical axis format.
-            dtype (np.dtype, optional): if not None convert the loaded image to this data type.
-            meta_key_format (str): key format to store meta data of the nifti image.
+            as_closest_canonical: if True, load the image as closest to canonical axis format.
+            dtype: if not None convert the loaded image to this data type.
+            meta_key_format: key format to store meta data of the nifti image.
                 it must contain 2 fields for the key of this image and the key of every meta data item.
-            overwriting_keys (bool): whether allow to overwrite existing keys of meta data.
+            overwriting_keys: whether allow to overwrite existing keys of meta data.
                 default is False, which will raise exception if encountering existing key.
         """
         super().__init__(keys)
@@ -70,13 +77,13 @@ class LoadPNGd(MapTransform):
     Dictionary-based wrapper of :py:class:`monai.transforms.LoadPNG`.
     """
 
-    def __init__(self, keys, dtype=np.float32, meta_key_format="{}.{}"):
+    def __init__(self, keys, dtype: Optional[np.dtype] = np.float32, meta_key_format: str = "{}.{}"):
         """
         Args:
             keys (hashable items): keys of the corresponding items to be transformed.
                 See also: :py:class:`monai.transforms.compose.MapTransform`
-            dtype (np.dtype, optional): if not None convert the loaded image to this data type.
-            meta_key_format (str): key format to store meta data of the loaded image.
+            dtype: if not None convert the loaded image to this data type.
+            meta_key_format: key format to store meta data of the loaded image.
                 it must contain 2 fields for the key of this image and the key of every meta data item.
         """
         super().__init__(keys)

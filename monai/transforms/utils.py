@@ -268,7 +268,7 @@ def create_grid(
         homogeneous: whether to make homogeneous coordinates.
         dtype: output grid data type.
     """
-    spacing: Sequence[int] = spacing or tuple(1.0 for _ in spatial_size)
+    spacing = spacing or tuple(1.0 for _ in spatial_size)
     ranges = [np.linspace(-(d - 1.0) / 2.0 * s, (d - 1.0) / 2.0 * s, int(d)) for d, s in zip(spatial_size, spacing)]
     coords = np.asarray(np.meshgrid(*ranges, indexing="ij"), dtype=dtype)
     if not homogeneous:
