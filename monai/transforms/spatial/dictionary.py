@@ -816,14 +816,12 @@ class RandZoomd(Randomizable, MapTransform):
         self.prefilter = ensure_tuple_rep(prefilter, len(self.keys))
 
         self._do_transform: bool = False
-        self._zoom: Union[float, Sequence[float]] = None
+        self._zoom = None
 
     def randomize(self):
         self._do_transform: bool = self.R.random_sample() < self.prob
         if hasattr(self.min_zoom, "__iter__"):
-            self._zoom: Union[float, Sequence[float]] = (
-                self.R.uniform(l, h) for l, h in zip(self.min_zoom, self.max_zoom)
-            )
+            self._zoom = (self.R.uniform(l, h) for l, h in zip(self.min_zoom, self.max_zoom))
         else:
             self._zoom: Union[float, Sequence[float]] = self.R.uniform(self.min_zoom, self.max_zoom)
 

@@ -12,7 +12,7 @@
 import numpy as np
 from skimage import io, transform
 
-from typing import Union
+from typing import Union, Tuple
 
 
 def write_png(

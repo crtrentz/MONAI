@@ -168,7 +168,7 @@ class Orientation(Transform):
         self.as_closest_canonical: bool = as_closest_canonical
         self.labels: Tuple[Tuple[str, str], ...] = labels
 
-    def __call__(self, data_array: TransformDataType, affine: Optional[np.matrix] = None) -> TransformDataType:
+    def __call__(self, data_array: TransformDataType, affine: Optional[np.matrix] = None):
         """
         original orientation of `data_array` is defined by `affine`.
 
@@ -430,7 +430,7 @@ class Zoom(Transform):
         Args:
             img: channel first array, must have shape: (num_channels, H[, W, ..., ]),
         """
-        zoomed: list = list()
+        zoomed = list()
         if self.use_gpu:
             import cupy
 
@@ -826,7 +826,9 @@ class RandAffineGrid(Randomizable, Transform):
         if self.scale_range:
             self.scale_params = [self.R.uniform(-f, f) + 1.0 for f in self.scale_range if f is not None]
 
-    def __call__(self, spatial_size: Optional[Union[List[int], Tuple[int]]] = None, grid: Optional[np.ndarray] = None):
+    def __call__(
+        self, spatial_size: Optional[Union[List[int], Tuple[int]]] = None, grid: Optional[TransformDataType] = None
+    ):
         """
         Returns:
             a 2D (3xHxW) or 3D (4xHxWxD) grid.
@@ -934,7 +936,7 @@ class Resample(Transform):
         for i, dim in enumerate(img.shape[1:]):
             grid[i] = 2.0 * grid[i] / (dim - 1.0)
         grid = grid[:-1] / grid[-1:]
-        grid = grid[range(img.ndim - 2, -1, -1)]
+        grid = grid[img.ndim - 2 : -1 : -1]
         grid = grid.permute(list(range(grid.ndim))[1:] + [0])
         out = torch.nn.functional.grid_sample(
             img[None].float(),

@@ -21,7 +21,7 @@ from monai.utils import ensure_tuple_size
 from monai.networks.layers.simplelayers import GaussianFilter
 
 import enum
-from typing import Union, Optional
+from typing import Union, Optional, Tuple, List
 
 
 class InterpolationCode(enum.IntEnum):
@@ -118,7 +118,7 @@ def dense_patch_slices(image_size: Tuple[int], patch_size: Tuple[int], scan_inte
         int(math.ceil(float(image_size[i]) / scan_interval[i])) if scan_interval[i] != 0 else 1
         for i in range(num_spatial_dims)
     ]
-    slices = []
+    slices: list = []
     if num_spatial_dims == 3:
         for i in range(scan_num[0]):
             start_i = i * scan_interval[0]
@@ -151,7 +151,7 @@ def dense_patch_slices(image_size: Tuple[int], patch_size: Tuple[int], scan_inte
 
 def iter_patch(
     arr: np.ndarray,
-    patch_size: Union[Tuple[int], None],
+    patch_size,
     start_pos: Optional[Tuple[int]] = (),
     copy_back: bool = True,
     pad_mode: Optional[str] = "wrap",
@@ -164,7 +164,7 @@ def iter_patch(
 
     Args:
         arr: array to iterate over
-        patch_size: size of patches to generate slices for, 0 or None selects whole dimension
+        patch_size (tuple of int): size of patches to generate slices for, 0 or None selects whole dimension
         start_pos: starting position in the array, default is 0 for each dimension
         copy_back: if True data from the yielded patches is copied back to `arr` once the generator completes
         pad_mode: padding mode, see `numpy.pad`
@@ -175,18 +175,18 @@ def iter_patch(
         True these changes will be reflected in `arr` once the iteration completes.
     """
     # ensure patchSize and startPos are the right length
-    patch_size = get_valid_patch_size(arr.shape, patch_size)
-    start_pos = ensure_tuple_size(start_pos, arr.ndim)
+    patch_size: tuple = get_valid_patch_size(arr.shape, patch_size)
+    start_pos: tuple = ensure_tuple_size(start_pos, arr.ndim)
 
     # pad image by maximum values needed to ensure patches are taken from inside an image
     arrpad = np.pad(arr, tuple((p, p) for p in patch_size), pad_mode, **pad_opts)
 
     # choose a start position in the padded image
-    start_pos_padded = tuple(s + p for s, p in zip(start_pos, patch_size))
+    start_pos_padded: tuple = tuple(s + p for s, p in zip(start_pos, patch_size))
 
     # choose a size to iterate over which is smaller than the actual padded image to prevent producing
     # patches which are only in the padded regions
-    iter_size = tuple(s + p for s, p in zip(arr.shape, patch_size))
+    iter_size: tuple = tuple(s + p for s, p in zip(arr.shape, patch_size))
 
     for slices in iter_patch_slices(iter_size, patch_size, start_pos_padded):
         yield arrpad[slices]
@@ -204,15 +204,15 @@ def get_valid_patch_size(dims, patch_size):
     the returned patch size is within the bounds of `dims`. If `patch_size` is a single number this is interpreted as a
     patch of the same dimensionality of `dims` with that size in each dimension.
     """
-    ndim = len(dims)
+    ndim: int = len(dims)
 
     try:
         # if a single value was given as patch size, treat this as the size of the patch over all dimensions
-        single_patch_size = int(patch_size)
-        patch_size = (single_patch_size,) * ndim
+        single_patch_size: int = int(patch_size)
+        patch_size: tuple = (single_patch_size,) * ndim
     except TypeError:  # raised if the patch size is multiple values
         # ensure patch size is at least as long as number of dimensions
-        patch_size = ensure_tuple_size(patch_size, ndim)
+        patch_size: tuple = ensure_tuple_size(patch_size, ndim)
 
     # ensure patch size dimensions are not larger than image dimension, if a dimension is None or 0 use whole dimension
     return tuple(min(ms, ps or ms) for ms, ps in zip(dims, patch_size))
@@ -435,7 +435,7 @@ def create_file_basename(postfix: str, input_file_name: str, folder_path: str, d
 
 
 def compute_importance_map(
-    patch_size: tuple, mode: str = "constant", sigma_scale: float = 0.125, device: str = None
+    patch_size: tuple, mode: str = "constant", sigma_scale: float = 0.125, device: Union[str, torch.device] = None
 ) -> torch.Tensor:
     """Get importance map for different weight modes.
 

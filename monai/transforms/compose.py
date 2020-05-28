@@ -171,7 +171,7 @@ class Compose(Randomizable):
 
     def __init__(self, transforms: Optional[Union[list, tuple]] = None):
         if transforms is None:
-            transforms = []
+            transforms: list = []
         if not isinstance(transforms, (list, tuple)):
             raise ValueError("Parameters 'transforms' must be a list or tuple")
         self.transforms: Union[list, tuple] = transforms

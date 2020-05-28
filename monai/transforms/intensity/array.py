@@ -17,7 +17,7 @@ import numpy as np
 
 from monai.transforms.compose import Transform, Randomizable
 from monai.transforms.utils import rescale_array
-from typing import Union, List, Tuple
+from typing import Union, List, Tuple, Optional
 
 
 class RandGaussianNoise(Randomizable, Transform):
@@ -95,7 +95,12 @@ class ScaleIntensity(Transform):
     If `minv` and `maxv` not provided, use `factor` to scale image by ``v = v * (1 + factor)``.
     """
 
-    def __init__(self, minv=0.0, maxv=1.0, factor=None):
+    def __init__(
+        self,
+        minv: Optional[Union[int, float]] = 0.0,
+        maxv: Optional[Union[int, float]] = 1.0,
+        factor: Optional[float] = None,
+    ):
         """
         Args:
             minv (int or float): minimum value of output data.

@@ -41,13 +41,13 @@ class Dataset(torchDataSet):
          },                           },                           }]
     """
 
-    def __init__(self, data: Iterable, transform: Optional[Callable] = None):
+    def __init__(self, data, transform: Optional[Callable] = None):
         """
         Args:
-            data: input data to load and transform to generate dataset for model.
+            data (iterable): input data to load and transform to generate dataset for model.
             transform: a callable data transform on input data.
         """
-        self.data: Iterable = data
+        self.data = data
         self.transform: Optional[Callable] = transform
 
     def __len__(self):
@@ -164,7 +164,7 @@ class PersistentDataset(Dataset):
             cache is ONLY dependant on the input filename paths.
         """
         if item_transformed.get("cached", False) is False:
-            hashfile = None
+            hashfile: Optional[Path] = None
             if self.cache_dir is not None:
                 cache_dir_path: Path = Path(self.cache_dir)
                 if cache_dir_path.is_dir():
@@ -250,7 +250,7 @@ class CacheDataset(Dataset):
                 If 0 a single thread will be used. Default is 0.
         """
         if not isinstance(transform, Compose):
-            transform = Compose(transform)
+            transform: Compose = Compose(transform)
         super().__init__(data, transform)
         self.cache_num: int = min(cache_num, int(len(self) * cache_rate), len(self))
         if self.cache_num > 0:

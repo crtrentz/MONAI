@@ -9,12 +9,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Union, Callable
+
 import torch
 import torch.nn.functional as F
 from monai.data.utils import dense_patch_slices, compute_importance_map
 
 
-def sliding_window_inference(inputs, roi_size, sw_batch_size, predictor, overlap=0.25, blend_mode="constant"):
+def sliding_window_inference(
+    inputs: torch.Tensor,
+    roi_size: Union[list, tuple],
+    sw_batch_size: int,
+    predictor: Callable,
+    overlap: float = 0.25,
+    blend_mode: str = "constant",
+):
     """Use SlidingWindow method to execute inference.
 
     Args:
@@ -39,7 +48,7 @@ def sliding_window_inference(inputs, roi_size, sw_batch_size, predictor, overlap
 
     # determine image spatial size and batch size
     # Note: all input images must have the same image size and batch size
-    image_size = list(inputs.shape[2:])
+    image_size: list = list(inputs.shape[2:])
     batch_size = inputs.shape[0]
 
     # TODO: Enable batch sizes > 1 in future
@@ -48,9 +57,11 @@ def sliding_window_inference(inputs, roi_size, sw_batch_size, predictor, overlap
 
     original_image_size = [image_size[i] for i in range(num_spatial_dims)]
     # in case that image size is smaller than roi size
-    image_size = tuple(max(image_size[i], roi_size[i]) for i in range(num_spatial_dims))
-    pad_size = [i for k in range(len(inputs.shape) - 1, 1, -1) for i in (0, max(roi_size[k - 2] - inputs.shape[k], 0))]
-    inputs = F.pad(inputs, pad=pad_size, mode="constant", value=0)
+    image_size: tuple = tuple(max(image_size[i], roi_size[i]) for i in range(num_spatial_dims))
+    pad_size: list = [
+        i for k in range(len(inputs.shape) - 1, 1, -1) for i in (0, max(roi_size[k - 2] - inputs.shape[k], 0))
+    ]
+    inputs: torch.Tensor = F.pad(inputs, pad=pad_size, mode="constant", value=0)
 
     scan_interval = _get_scan_interval(image_size, roi_size, num_spatial_dims, overlap)
 

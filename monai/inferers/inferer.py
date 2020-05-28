@@ -10,6 +10,10 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
+from typing import Union
+
+import torch
+
 from .utils import sliding_window_inference
 
 
@@ -69,16 +73,18 @@ class SlidingWindowInferer(Inferer):
 
     """
 
-    def __init__(self, roi_size, sw_batch_size=1, overlap=0.25, blend_mode="constant"):
+    def __init__(
+        self, roi_size: Union[list, tuple], sw_batch_size: int = 1, overlap: float = 0.25, blend_mode: str = "constant"
+    ):
         Inferer.__init__(self)
         if not isinstance(roi_size, (list, tuple)):
             raise ValueError("must specify the roi size in a list or tuple for SlidingWindow.")
-        self.roi_size = roi_size
-        self.sw_batch_size = sw_batch_size
-        self.overlap = overlap
-        self.blend_mode = blend_mode
+        self.roi_size: Union[list, tuple] = roi_size
+        self.sw_batch_size: int = sw_batch_size
+        self.overlap: float = overlap
+        self.blend_mode: str = blend_mode
 
-    def __call__(self, inputs, network):
+    def __call__(self, inputs: torch.Tensor, network):
         """
         Unified callable function API of Inferers.
 

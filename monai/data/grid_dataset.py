@@ -10,7 +10,7 @@
 # limitations under the License.
 
 import math
-from typing import Optional, Tuple, Iterable
+from typing import Optional, Tuple, Iterable, Union
 
 import torch
 from torch.utils.data import Dataset, IterableDataset
@@ -26,8 +26,8 @@ class GridPatchDataset(IterableDataset):
     def __init__(
         self,
         dataset: Dataset,
-        patch_size: Optional[Iterable[int]],
-        start_pos: Iterable[int] = (),
+        patch_size,
+        start_pos: Tuple[int] = (),
         pad_mode: Optional[str] = "wrap",
         **pad_opts: Optional[dict],
     ):
@@ -40,15 +40,15 @@ class GridPatchDataset(IterableDataset):
 
         Args:
             dataset: the dataset to read array data from
-            patch_size: size of patches to generate slices for, 0/None selects whole dimension
+            patch_size (tuple of ints or none): size of patches to generate slices for, 0/None selects whole dimension
             start_pos: starting position in the array, default is 0 for each dimension
             pad_mode: padding mode, see numpy.pad
             pad_opts: padding options, see numpy.pad
         """
 
         self.dataset = dataset
-        self.patch_size: Tuple[None, ...] = (None,) + tuple(patch_size) if patch_size else (None,)
-        self.start_pos: Iterable[int] = start_pos
+        self.patch_size = (None,) + tuple(patch_size) if patch_size else (None,)
+        self.start_pos: Tuple[int] = start_pos
         self.pad_mode: Optional[str] = pad_mode
         self.pad_opts: Optional[dict] = pad_opts
 
