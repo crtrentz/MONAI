@@ -12,7 +12,7 @@
 import torch
 from typing import Any, Tuple, TypeVar, Union
 
-_T0 = TypeVar('_T0')
+_T0 = TypeVar("_T0")
 
 
 class CommonKeys:
@@ -33,7 +33,7 @@ class CommonKeys:
     INFO = "info"
 
 
-def get_devices_spec(devices: _T0=None) -> Union[list, _T0]:
+def get_devices_spec(devices: _T0 = None) -> Union[list, _T0]:
     """
     Get a valid specification for one or more devices. If `devices` is None get devices for all CUDA devices available.
     If `devices` is and zero-length structure a single CPU compute device is returned. In any other cases `devices` is

@@ -21,7 +21,7 @@ from monai.transforms.utils import rescale_array
 from typing import Union, List, Tuple, Optional
 from typing import TypeVar
 
-_T0 = TypeVar('_T0')
+_T0 = TypeVar("_T0")
 
 
 class RandGaussianNoise(Randomizable, Transform):

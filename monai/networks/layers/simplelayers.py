@@ -17,7 +17,7 @@ from monai.networks.layers.convutils import gaussian_1d, same_padding
 from monai.utils.misc import ensure_tuple_rep
 from typing import Any, TypeVar
 
-_T0 = TypeVar('_T0')
+_T0 = TypeVar("_T0")
 
 __all__ = ["SkipConnection", "Flatten", "GaussianFilter"]
 

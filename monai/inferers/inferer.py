@@ -14,7 +14,7 @@ from .utils import sliding_window_inference
 import torch
 from typing import Callable, TypeVar
 
-_FuncT = TypeVar('_FuncT', bound=Callable)
+_FuncT = TypeVar("_FuncT", bound=Callable)
 
 
 class Inferer(ABC):

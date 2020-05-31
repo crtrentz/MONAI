@@ -37,10 +37,6 @@ from monai.utils.misc import ensure_tuple
 from typing import Sequence, Tuple
 from typing import TypeVar
 
-_TRand2DElastic = TypeVar('_TRand2DElastic', bound=Rand2DElastic)
-_TRand3DElastic = TypeVar('_TRand3DElastic', bound=Rand3DElastic)
-_TRandAffine = TypeVar('_TRandAffine', bound=RandAffine)
-
 
 class Spacing(Transform):
     """
@@ -1108,6 +1104,9 @@ class RandAffine(Randomizable, Transform):
         )
 
 
+_TRandAffine = TypeVar("_TRandAffine", bound=RandAffine)
+
+
 class Rand2DElastic(Randomizable, Transform):
     """
     Random elastic deformation and affine in 2D
@@ -1204,6 +1203,9 @@ class Rand2DElastic(Randomizable, Transform):
         return self.resampler(img, grid, padding_mode=padding_mode or self.padding_mode, mode=mode or self.mode)
 
 
+_TRand2DElastic = TypeVar("_TRand2DElastic", bound=Rand2DElastic)
+
+
 class Rand3DElastic(Randomizable, Transform):
     """
     Random elastic deformation and affine in 3D
@@ -1295,3 +1297,6 @@ class Rand3DElastic(Randomizable, Transform):
             grid[:3] += gaussian(offset)[0] * self.magnitude
             grid = self.rand_affine_grid(grid=grid)
         return self.resampler(img, grid, padding_mode=self.padding_mode, mode=mode or self.mode)
+
+
+_TRand3DElastic = TypeVar("_TRand3DElastic", bound=Rand3DElastic)

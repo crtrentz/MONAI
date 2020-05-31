@@ -63,9 +63,7 @@ can be parameterized with the factory name and the arguments to pass to the crea
 from typing import Callable, Any
 
 import torch.nn as nn
-from typing import Tuple, TypeVar
-
-_T0 = TypeVar('_T0')
+from typing import Tuple, Union
 
 __all__ = ["LayerFactory", "Dropout", "Norm", "Act", "Conv", "Pool"]
 
@@ -146,7 +144,7 @@ class LayerFactory:
         return super().__getattribute__(key)
 
 
-def split_args(args: _T0) -> Tuple[Any, Any]:
+def split_args(args: Union[str, Tuple[str, Any]]) -> Tuple[Any, Any]:
     """
     Split arguments in a way to be suitable for using with the factory types. If `args` is a name it's interpreted
     """

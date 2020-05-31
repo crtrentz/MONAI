@@ -24,5 +24,5 @@ from .post.array import *
 from .post.dictionary import *
 from typing import Callable, TypeVar
 
-_FuncT = TypeVar('_FuncT', bound=Callable)
-_T0 = TypeVar('_T0')
+_FuncT = TypeVar("_FuncT", bound=Callable)
+_T0 = TypeVar("_T0")

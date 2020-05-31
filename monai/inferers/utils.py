@@ -15,9 +15,7 @@ from monai.data.utils import dense_patch_slices, compute_importance_map
 from typing import Any
 
 
-def sliding_window_inference(
-    inputs, roi_size, sw_batch_size, predictor, overlap=0.25, blend_mode="constant",
-) -> Any:
+def sliding_window_inference(inputs, roi_size, sw_batch_size, predictor, overlap=0.25, blend_mode="constant",) -> Any:
     """Use SlidingWindow method to execute inference.
 
     Args:

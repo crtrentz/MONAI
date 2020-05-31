@@ -24,7 +24,7 @@ from monai.transforms.utils import generate_pos_neg_label_crop_centers, generate
 from monai.utils.misc import ensure_tuple, ensure_tuple_rep
 from typing import TypeVar
 
-_T0 = TypeVar('_T0')
+_T0 = TypeVar("_T0")
 
 
 class SpatialPadd(MapTransform):

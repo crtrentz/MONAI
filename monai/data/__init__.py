@@ -21,11 +21,11 @@ from .png_saver import PNGSaver
 from .png_writer import write_png
 from typing import TypeVar
 
-_S = TypeVar('_S')
-_T0 = TypeVar('_T0')
-_T1 = TypeVar('_T1')
-_T2 = TypeVar('_T2')
-_T3 = TypeVar('_T3')
-_T4 = TypeVar('_T4')
-_T5 = TypeVar('_T5')
-_T6 = TypeVar('_T6')
+_S = TypeVar("_S")
+_T0 = TypeVar("_T0")
+_T1 = TypeVar("_T1")
+_T2 = TypeVar("_T2")
+_T3 = TypeVar("_T3")
+_T4 = TypeVar("_T4")
+_T5 = TypeVar("_T5")
+_T6 = TypeVar("_T6")

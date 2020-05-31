@@ -23,7 +23,7 @@ from monai.transforms.utils import generate_spatial_bounding_box
 from monai.utils.misc import ensure_tuple, ensure_tuple_rep
 from typing import Any, List, Tuple, TypeVar
 
-_T0 = TypeVar('_T0')
+_T0 = TypeVar("_T0")
 
 
 class SpatialPad(Transform):

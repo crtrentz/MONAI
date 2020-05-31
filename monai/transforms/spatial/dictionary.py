@@ -39,10 +39,7 @@ from monai.transforms.utils import create_grid
 from monai.utils.misc import ensure_tuple_rep
 from typing import TypeVar
 
-_T0 = TypeVar('_T0')
-_TRand2DElasticd = TypeVar('_TRand2DElasticd', bound=Rand2DElasticd)
-_TRand3DElasticd = TypeVar('_TRand3DElasticd', bound=Rand3DElasticd)
-_TRandAffined = TypeVar('_TRandAffined', bound=RandAffined)
+_T0 = TypeVar("_T0")
 
 
 class Spacingd(MapTransform):
@@ -348,7 +345,7 @@ class RandAffined(Randomizable, MapTransform):
         self.padding_mode = ensure_tuple_rep(padding_mode, len(self.keys))
         self.mode = ensure_tuple_rep(mode, len(self.keys))
 
-    def set_random_state(self: _TRandAffined, seed=None, state=None) -> _TRandAffined:
+    def set_random_state(self, seed=None, state=None):
         self.rand_affine.set_random_state(seed, state)
         super().set_random_state(seed, state)
         return self
@@ -458,6 +455,9 @@ class Rand2DElasticd(Randomizable, MapTransform):
         return d
 
 
+_TRand2DElasticd = TypeVar("_TRand2DElasticd", bound=Rand2DElasticd)
+
+
 class Rand3DElasticd(Randomizable, MapTransform):
     """
     Dictionary-based wrapper of :py:class:`monai.transforms.Rand3DElastic`.
@@ -545,6 +545,9 @@ class Rand3DElasticd(Randomizable, MapTransform):
                 d[key], grid, padding_mode=self.padding_mode[idx], mode=self.mode[idx]
             )
         return d
+
+
+_TRand3DElasticd = TypeVar("_TRand3DElasticd", bound=Rand3DElasticd)
 
 
 class Flipd(MapTransform):

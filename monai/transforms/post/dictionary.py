@@ -22,7 +22,7 @@ from monai.transforms.compose import MapTransform
 from monai.transforms.post.array import SplitChannel, Activations, AsDiscrete, KeepLargestConnectedComponent
 from typing import TypeVar
 
-_T0 = TypeVar('_T0')
+_T0 = TypeVar("_T0")
 
 
 class SplitChanneld(MapTransform):

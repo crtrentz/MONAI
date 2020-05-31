@@ -22,8 +22,7 @@ from .utils import apply_transform
 from torch import Tensor
 from typing import Any, Callable, TypeVar
 
-_FuncT = TypeVar('_FuncT', bound=Callable)
-_TRandomizable = TypeVar('_TRandomizable', bound=Randomizable)
+_FuncT = TypeVar("_FuncT", bound=Callable)
 
 TransformDataType = Union[np.ndarray, Tensor]
 
@@ -110,6 +109,9 @@ class Randomizable(ABC):
         properties of the input data.
         """
         raise NotImplementedError
+
+
+_TRandomizable = TypeVar("_TRandomizable", bound=Randomizable)
 
 
 class Compose(Randomizable):

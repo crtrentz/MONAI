@@ -16,9 +16,9 @@ from ignite.engine import create_supervised_trainer, create_supervised_evaluator
 from .utils import get_devices_spec
 from typing import Any, Tuple, TypeVar
 
-_T0 = TypeVar('_T0')
-_T1 = TypeVar('_T1')
-_T2 = TypeVar('_T2')
+_T0 = TypeVar("_T0")
+_T1 = TypeVar("_T1")
+_T2 = TypeVar("_T2")
 
 
 def _default_transform(x, y, y_pred, loss) -> Any:

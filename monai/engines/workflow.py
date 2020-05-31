@@ -15,7 +15,7 @@ from ignite.engine import Engine, State, Events
 from .utils import default_prepare_batch
 from typing import Callable, TypeVar
 
-_FuncT = TypeVar('_FuncT', bound=Callable)
+_FuncT = TypeVar("_FuncT", bound=Callable)
 
 
 class Workflow(ABC, Engine):

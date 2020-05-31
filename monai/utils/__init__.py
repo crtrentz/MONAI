@@ -15,4 +15,4 @@ from .decorators import *
 from .misc import *
 from typing import TypeVar
 
-_T0 = TypeVar('_T0')
+_T0 = TypeVar("_T0")

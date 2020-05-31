@@ -14,7 +14,7 @@ from pkgutil import walk_packages
 from re import match
 from typing import Any, Callable, TypeVar
 
-AnyStr = TypeVar('AnyStr', str, bytes)
+AnyStr = TypeVar("AnyStr", str, bytes)
 
 
 def export(modname) -> Callable[[Any], Any]:

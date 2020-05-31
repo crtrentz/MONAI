@@ -15,4 +15,4 @@ from .simplelayers import *
 from .spatial_transforms import *
 from typing import TypeVar
 
-_T0 = TypeVar('_T0')
+_T0 = TypeVar("_T0")

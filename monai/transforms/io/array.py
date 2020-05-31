@@ -25,7 +25,7 @@ from monai.transforms.compose import Transform
 from monai.utils.misc import ensure_tuple
 from typing import TypeVar
 
-_T0 = TypeVar('_T0')
+_T0 = TypeVar("_T0")
 
 
 class LoadNifti(Transform):

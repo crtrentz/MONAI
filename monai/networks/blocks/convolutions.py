@@ -16,7 +16,7 @@ from monai.networks.layers.factories import Dropout, Norm, Act, Conv, split_args
 from monai.networks.layers.convutils import same_padding
 from typing import Any, TypeVar
 
-_T0 = TypeVar('_T0')
+_T0 = TypeVar("_T0")
 
 
 class Convolution(nn.Sequential):
