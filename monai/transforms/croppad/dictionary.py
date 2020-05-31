@@ -22,6 +22,9 @@ from monai.transforms.compose import MapTransform, Randomizable
 from monai.transforms.croppad.array import SpatialCrop, CenterSpatialCrop, SpatialPad
 from monai.transforms.utils import generate_pos_neg_label_crop_centers, generate_spatial_bounding_box
 from monai.utils.misc import ensure_tuple, ensure_tuple_rep
+from typing import TypeVar
+
+_T0 = TypeVar('_T0')
 
 
 class SpatialPadd(MapTransform):
@@ -124,7 +127,7 @@ class RandSpatialCropd(Randomizable, MapTransform):
         self.random_center = random_center
         self.random_size = random_size
 
-    def randomize(self, img_size):
+    def randomize(self, img_size) -> None:
         self._size = ensure_tuple_rep(self.roi_size, len(img_size))
         if self.random_size:
             self._size = [self.R.randint(low=self._size[i], high=img_size[i] + 1) for i in range(len(img_size))]
@@ -242,7 +245,7 @@ class RandCropByPosNegLabeld(Randomizable, MapTransform):
         self.image_threshold = image_threshold
         self.centers = None
 
-    def randomize(self, label, image):
+    def randomize(self, label, image) -> None:
         self.centers = generate_pos_neg_label_crop_centers(
             label, self.size, self.num_samples, self.pos_ratio, image, self.image_threshold, self.R
         )

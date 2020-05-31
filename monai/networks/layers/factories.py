@@ -63,6 +63,9 @@ can be parameterized with the factory name and the arguments to pass to the crea
 from typing import Callable, Any
 
 import torch.nn as nn
+from typing import Tuple, TypeVar
+
+_T0 = TypeVar('_T0')
 
 __all__ = ["LayerFactory", "Dropout", "Norm", "Act", "Conv", "Pool"]
 
@@ -73,7 +76,7 @@ class LayerFactory:
     callables. These functions are referred to by name and can be added at any time.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.factories = {}
 
     @property
@@ -84,14 +87,14 @@ class LayerFactory:
 
         return tuple(self.factories)
 
-    def add_factory_callable(self, name, func):
+    def add_factory_callable(self, name, func) -> None:
         """
         Add the factory function to this object under the given name.
         """
 
         self.factories[name.upper()] = func
 
-    def factory_function(self, name):
+    def factory_function(self, name) -> Callable[[Any], Any]:
         """
         Decorator for adding a factory function with the given name.
         """
@@ -143,7 +146,7 @@ class LayerFactory:
         return super().__getattribute__(key)
 
 
-def split_args(args):
+def split_args(args: _T0) -> Tuple[Any, Any]:
     """
     Split arguments in a way to be suitable for using with the factory types. If `args` is a name it's interpreted
     """
@@ -170,19 +173,19 @@ Pool = LayerFactory()
 
 
 @Dropout.factory_function("dropout")
-def dropout_factory(dim):
+def dropout_factory(dim) -> Any:
     types = [nn.Dropout, nn.Dropout2d, nn.Dropout3d]
     return types[dim - 1]
 
 
 @Norm.factory_function("instance")
-def instance_factory(dim):
+def instance_factory(dim) -> Any:
     types = [nn.InstanceNorm1d, nn.InstanceNorm2d, nn.InstanceNorm3d]
     return types[dim - 1]
 
 
 @Norm.factory_function("batch")
-def batch_factory(dim):
+def batch_factory(dim) -> Any:
     types = [nn.BatchNorm1d, nn.BatchNorm2d, nn.BatchNorm3d]
     return types[dim - 1]
 
@@ -193,36 +196,36 @@ Act.add_factory_callable("prelu", lambda: nn.modules.PReLU)
 
 
 @Conv.factory_function("conv")
-def conv_factory(dim):
+def conv_factory(dim) -> Any:
     types = [nn.Conv1d, nn.Conv2d, nn.Conv3d]
     return types[dim - 1]
 
 
 @Conv.factory_function("convtrans")
-def convtrans_factory(dim):
+def convtrans_factory(dim) -> Any:
     types = [nn.ConvTranspose1d, nn.ConvTranspose2d, nn.ConvTranspose3d]
     return types[dim - 1]
 
 
 @Pool.factory_function("max")
-def maxpooling_factory(dim):
+def maxpooling_factory(dim) -> Any:
     types = [nn.MaxPool1d, nn.MaxPool2d, nn.MaxPool3d]
     return types[dim - 1]
 
 
 @Pool.factory_function("adaptivemax")
-def adaptive_maxpooling_factory(dim):
+def adaptive_maxpooling_factory(dim) -> Any:
     types = [nn.AdaptiveMaxPool1d, nn.AdaptiveMaxPool2d, nn.AdaptiveMaxPool3d]
     return types[dim - 1]
 
 
 @Pool.factory_function("avg")
-def avgpooling_factory(dim):
+def avgpooling_factory(dim) -> Any:
     types = [nn.AvgPool1d, nn.AvgPool2d, nn.AvgPool3d]
     return types[dim - 1]
 
 
 @Pool.factory_function("adaptiveavg")
-def adaptive_avgpooling_factory(dim):
+def adaptive_avgpooling_factory(dim) -> Any:
     types = [nn.AdaptiveAvgPool1d, nn.AdaptiveAvgPool2d, nn.AdaptiveAvgPool3d]
     return types[dim - 1]

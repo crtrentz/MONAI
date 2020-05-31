@@ -20,6 +20,10 @@ import numpy as np
 from monai.utils.misc import ensure_tuple, get_seed
 from .utils import apply_transform
 from torch import Tensor
+from typing import Any, Callable, TypeVar
+
+_FuncT = TypeVar('_FuncT', bound=Callable)
+_TRandomizable = TypeVar('_TRandomizable', bound=Randomizable)
 
 TransformDataType = Union[np.ndarray, Tensor]
 
@@ -95,7 +99,7 @@ class Randomizable(ABC):
         return self
 
     @abstractmethod
-    def randomize(self, *args, **kwargs):
+    def randomize(self, *args, **kwargs) -> Any:
         """
         Within this method, :py:attr:`self.R` should be used, instead of `np.random`, to introduce random factors.
 
@@ -169,7 +173,7 @@ class Compose(Randomizable):
         them are called on the labels.
     """
 
-    def __init__(self, transforms=None):
+    def __init__(self, transforms=None) -> None:
         if transforms is None:
             transforms = []
         if not isinstance(transforms, (list, tuple)):
@@ -183,7 +187,7 @@ class Compose(Randomizable):
                 continue
             _transform.set_random_state(seed, state)
 
-    def randomize(self):
+    def randomize(self) -> None:
         for _transform in self.transforms:
             if not isinstance(_transform, Randomizable):
                 continue

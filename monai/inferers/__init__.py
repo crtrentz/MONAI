@@ -11,3 +11,6 @@
 
 from .utils import sliding_window_inference
 from .inferer import *
+from typing import Callable, TypeVar
+
+_FuncT = TypeVar('_FuncT', bound=Callable)

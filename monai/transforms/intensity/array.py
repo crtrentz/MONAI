@@ -19,6 +19,9 @@ import numpy as np
 from monai.transforms.compose import Transform, Randomizable
 from monai.transforms.utils import rescale_array
 from typing import Union, List, Tuple, Optional
+from typing import TypeVar
+
+_T0 = TypeVar('_T0')
 
 
 class RandGaussianNoise(Randomizable, Transform):
@@ -37,7 +40,7 @@ class RandGaussianNoise(Randomizable, Transform):
         self._do_transform: bool = False
         self._noise = None
 
-    def randomize(self, im_shape):
+    def randomize(self, im_shape) -> None:
         self._do_transform = self.R.random() < self.prob
         self._noise = self.R.normal(self.mean, self.R.uniform(0, self.std), size=im_shape)
 
@@ -78,7 +81,7 @@ class RandShiftIntensity(Randomizable, Transform):
         self.prob: float = prob
         self._do_transform: bool = False
 
-    def randomize(self):
+    def randomize(self) -> None:
         self._offset = self.R.uniform(low=self.offsets[0], high=self.offsets[1])
         self._do_transform = self.R.random() < self.prob
 
@@ -138,7 +141,7 @@ class RandScaleIntensity(Randomizable, Transform):
         self.prob = prob
         self._do_transform = False
 
-    def randomize(self):
+    def randomize(self) -> None:
         self.factor = self.R.uniform(low=self.factors[0], high=self.factors[1])
         self._do_transform = self.R.random() < self.prob
 
@@ -181,7 +184,7 @@ class NormalizeIntensity(Transform):
         self.nonzero = nonzero
         self.channel_wise = channel_wise
 
-    def _normalize(self, img):
+    def _normalize(self, img: _T0) -> _T0:
         slices = (img != 0) if self.nonzero else np.ones(img.shape, dtype=np.bool_)
         if np.any(slices):
             if self.subtrahend is not None and self.divisor is not None:
@@ -284,7 +287,7 @@ class RandAdjustContrast(Randomizable, Transform):
             If single number, value is picked from (0.5, gamma), default is (0.5, 4.5).
     """
 
-    def __init__(self, prob=0.1, gamma=(0.5, 4.5)):
+    def __init__(self, prob=0.1, gamma=(0.5, 4.5)) -> None:
         self.prob = prob
         if not isinstance(gamma, (tuple, list)):
             assert gamma > 0.5, "if gamma is single number, must greater than 0.5 and value is picked from (0.5, gamma)"
@@ -296,7 +299,7 @@ class RandAdjustContrast(Randomizable, Transform):
         self._do_transform = False
         self.gamma_value = None
 
-    def randomize(self):
+    def randomize(self) -> None:
         self._do_transform = self.R.random_sample() < self.prob
         self.gamma_value = self.R.uniform(low=self.gamma[0], high=self.gamma[1])
 

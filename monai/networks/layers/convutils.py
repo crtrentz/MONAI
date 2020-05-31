@@ -10,11 +10,12 @@
 # limitations under the License.
 
 import numpy as np
+from typing import Any, Tuple, Union
 
 __all__ = ["same_padding", "calculate_out_shape", "gaussian_1d"]
 
 
-def same_padding(kernel_size, dilation=1):
+def same_padding(kernel_size, dilation=1) -> Union[int, Tuple[int, ...]]:
     """
     Return the padding value needed to ensure a convolution using the given kernel size produces an output of the same
     shape as the input for a stride of 1, otherwise ensure a shape of the input divided by the stride rounded down.
@@ -26,7 +27,7 @@ def same_padding(kernel_size, dilation=1):
     return tuple(padding) if len(padding) > 1 else padding[0]
 
 
-def calculate_out_shape(in_shape, kernel_size, stride, padding):
+def calculate_out_shape(in_shape, kernel_size, stride, padding) -> Union[int, Tuple[int, ...]]:
     """
     Calculate the output tensor shape when applying a convolution to a tensor of shape `inShape` with kernel size
     `kernel_size`, stride value `stride`, and input padding value `padding`. All arguments can be scalars or multiple
@@ -39,7 +40,7 @@ def calculate_out_shape(in_shape, kernel_size, stride, padding):
     return tuple(out_shape) if len(out_shape) > 1 else out_shape[0]
 
 
-def gaussian_1d(sigma, truncated=4.0):
+def gaussian_1d(sigma, truncated=4.0) -> Any:
     """
     one dimensional gaussian kernel.
 

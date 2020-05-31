@@ -1,3 +1,4 @@
+from typing import Any, Callable
 # Copyright 2020 MONAI Consortium
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -10,7 +11,7 @@
 # limitations under the License.
 
 
-def stopping_fn_from_metric(metric_name):
+def stopping_fn_from_metric(metric_name) -> Callable[[Any], Any]:
     """Returns a stopping function for ignite.handlers.EarlyStopping using the given metric name."""
 
     def stopping_fn(engine):
@@ -19,7 +20,7 @@ def stopping_fn_from_metric(metric_name):
     return stopping_fn
 
 
-def stopping_fn_from_loss():
+def stopping_fn_from_loss() -> Callable[[Any], Any]:
     """Returns a stopping function for ignite.handlers.EarlyStopping using the loss value."""
 
     def stopping_fn(engine):

@@ -21,6 +21,9 @@ from monai.data.utils import get_random_patch, get_valid_patch_size
 from monai.transforms.compose import Transform, Randomizable
 from monai.transforms.utils import generate_spatial_bounding_box
 from monai.utils.misc import ensure_tuple, ensure_tuple_rep
+from typing import Any, List, Tuple, TypeVar
+
+_T0 = TypeVar('_T0')
 
 
 class SpatialPad(Transform):
@@ -43,7 +46,7 @@ class SpatialPad(Transform):
         assert isinstance(mode, str), "mode must be str."
         self.mode = mode
 
-    def _determine_data_pad_width(self, data_shape):
+    def _determine_data_pad_width(self, data_shape) -> List[Tuple[Any, Any]]:
         if self.method == "symmetric":
             pad_width = list()
             for i in range(len(self.spatial_size)):
@@ -69,7 +72,7 @@ class SpatialCrop(Transform):
     Note: This transform will not work if the crop region is larger than the image itself.
     """
 
-    def __init__(self, roi_center=None, roi_size=None, roi_start=None, roi_end=None):
+    def __init__(self, roi_center=None, roi_size=None, roi_start=None, roi_end=None) -> None:
         """
         Args:
             roi_center (list or tuple): voxel coordinates for center of the crop ROI.
@@ -109,7 +112,7 @@ class CenterSpatialCrop(Transform):
         roi_size (list, tuple): the spatial size of the crop region e.g. [224,224,128]
     """
 
-    def __init__(self, roi_size):
+    def __init__(self, roi_size) -> None:
         self.roi_size = roi_size
 
     def __call__(self, img):
@@ -137,7 +140,7 @@ class RandSpatialCrop(Randomizable, Transform):
         self.random_center = random_center
         self.random_size = random_size
 
-    def randomize(self, img_size):
+    def randomize(self, img_size) -> None:
         self._size = ensure_tuple_rep(self.roi_size, len(img_size))
         if self.random_size:
             self._size = [self.R.randint(low=self._size[i], high=img_size[i] + 1) for i in range(len(img_size))]

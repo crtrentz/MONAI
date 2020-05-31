@@ -18,6 +18,7 @@ from monai.inferers.inferer import SimpleInferer
 from .workflow import Workflow
 from .utils import default_prepare_batch
 from .utils import CommonKeys as Keys
+from typing import Any, Dict
 
 
 class Trainer(Workflow):
@@ -36,7 +37,7 @@ class Trainer(Workflow):
             self.state.iteration = 0  # to avoid creating new State instance in ignite Engine.run
         super().run()
 
-    def get_train_stats(self):
+    def get_train_stats(self) -> Dict[str, Any]:
         return {"total_epochs": self.state.max_epochs, "total_iterations": self.state.epoch_length}
 
 

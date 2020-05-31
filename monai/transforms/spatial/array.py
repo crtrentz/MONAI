@@ -35,6 +35,11 @@ from monai.transforms.utils import (
 )
 from monai.utils.misc import ensure_tuple
 from typing import Sequence, Tuple
+from typing import TypeVar
+
+_TRand2DElastic = TypeVar('_TRand2DElastic', bound=Rand2DElastic)
+_TRand3DElastic = TypeVar('_TRand3DElastic', bound=Rand3DElastic)
+_TRandAffine = TypeVar('_TRandAffine', bound=RandAffine)
 
 
 class Spacing(Transform):
@@ -520,7 +525,7 @@ class RandRotate90(Randomizable, Transform):
         self._do_transform = False
         self._rand_k = 0
 
-    def randomize(self):
+    def randomize(self) -> None:
         self._rand_k = self.R.randint(self.max_k) + 1
         self._do_transform = self.R.random() < self.prob
 
@@ -578,7 +583,7 @@ class RandRotate(Randomizable, Transform):
         self._do_transform = False
         self.angle = None
 
-    def randomize(self):
+    def randomize(self) -> None:
         self._do_transform = self.R.random_sample() < self.prob
         self.angle = self.R.uniform(low=self.degrees[0], high=self.degrees[1])
 
@@ -620,7 +625,7 @@ class RandFlip(Randomizable, Transform):
         self.flipper = Flip(spatial_axis=spatial_axis)
         self._do_transform = False
 
-    def randomize(self):
+    def randomize(self) -> None:
         self._do_transform = self.R.random_sample() < self.prob
 
     def __call__(self, img):
@@ -679,7 +684,7 @@ class RandZoom(Randomizable, Transform):
         self._do_transform = False
         self._zoom = None
 
-    def randomize(self):
+    def randomize(self) -> None:
         self._do_transform = self.R.random_sample() < self.prob
         if hasattr(self.min_zoom, "__iter__"):
             self._zoom = (self.R.uniform(l, h) for l, h in zip(self.min_zoom, self.max_zoom))
@@ -813,7 +818,7 @@ class RandAffineGrid(Randomizable, Transform):
         self.as_tensor_output = as_tensor_output
         self.device = device
 
-    def randomize(self):
+    def randomize(self) -> None:
         if self.rotate_range:
             self.rotate_params = [self.R.uniform(-f, f) for f in self.rotate_range if f is not None]
         if self.shear_range:
@@ -866,7 +871,7 @@ class RandDeformGrid(Randomizable, Transform):
         self.random_offset = 0.0
         self.device = device
 
-    def randomize(self, grid_size):
+    def randomize(self, grid_size) -> None:
         self.random_offset = self.R.normal(size=([len(grid_size)] + list(grid_size))).astype(np.float32)
         self.rand_mag = self.R.uniform(self.magnitude[0], self.magnitude[1])
 
@@ -1072,7 +1077,7 @@ class RandAffine(Randomizable, Transform):
         super().set_random_state(seed, state)
         return self
 
-    def randomize(self):
+    def randomize(self) -> None:
         self.do_transform = self.R.rand() < self.prob
         self.rand_affine_grid.randomize()
 
@@ -1168,7 +1173,7 @@ class Rand2DElastic(Randomizable, Transform):
         super().set_random_state(seed, state)
         return self
 
-    def randomize(self, spatial_size):
+    def randomize(self, spatial_size) -> None:
         self.do_transform = self.R.rand() < self.prob
         self.deform_grid.randomize(spatial_size)
         self.rand_affine_grid.randomize()
@@ -1261,7 +1266,7 @@ class Rand3DElastic(Randomizable, Transform):
         super().set_random_state(seed, state)
         return self
 
-    def randomize(self, grid_size):
+    def randomize(self, grid_size) -> None:
         self.do_transform = self.R.rand() < self.prob
         if self.do_transform:
             self.rand_offset = self.R.uniform(-1.0, 1.0, [3] + list(grid_size)).astype(np.float32)

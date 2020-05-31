@@ -15,6 +15,9 @@ import torch.nn.functional as F
 
 from monai.networks.layers.convutils import gaussian_1d, same_padding
 from monai.utils.misc import ensure_tuple_rep
+from typing import Any, TypeVar
+
+_T0 = TypeVar('_T0')
 
 __all__ = ["SkipConnection", "Flatten", "GaussianFilter"]
 
@@ -22,19 +25,19 @@ __all__ = ["SkipConnection", "Flatten", "GaussianFilter"]
 class SkipConnection(nn.Module):
     """Concats the forward pass input with the result from the given submodule."""
 
-    def __init__(self, submodule, cat_dim=1):
+    def __init__(self, submodule, cat_dim=1) -> None:
         super().__init__()
         self.submodule = submodule
         self.cat_dim = cat_dim
 
-    def forward(self, x):
+    def forward(self, x) -> Any:
         return torch.cat([x, self.submodule(x)], self.cat_dim)
 
 
 class Flatten(nn.Module):
     """Flattens the given input in the forward pass to be [B,-1] in shape."""
 
-    def forward(self, x):
+    def forward(self, x) -> Any:
         return x.view(x.size(0), -1)
 
 

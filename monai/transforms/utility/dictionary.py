@@ -33,6 +33,9 @@ from monai.transforms.utility.array import (
     DataStats,
     SimulateDelay,
 )
+from typing import TypeVar
+
+_T0 = TypeVar('_T0')
 
 
 class AsChannelFirstd(MapTransform):

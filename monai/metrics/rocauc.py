@@ -15,9 +15,10 @@ import torch
 import warnings
 import numpy as np
 from monai.networks.utils import one_hot
+from typing import Any
 
 
-def _calculate(y, y_pred):
+def _calculate(y, y_pred) -> Any:
     assert y.ndimension() == y_pred.ndimension() == 1 and len(y) == len(
         y_pred
     ), "y and y_pred must be 1 dimension data with same length."

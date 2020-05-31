@@ -26,6 +26,9 @@ from monai.transforms.utils import apply_transform
 from monai.utils import process_bar, get_seed
 
 from torch.utils.data import Dataset as _TorchDataset
+from typing import Any
+
+_TorchDataset: Any
 
 
 class Dataset(_TorchDataset):
@@ -113,7 +116,7 @@ class PersistentDataset(Dataset):
         super().__init__(data=data, transform=transform)
         self.cache_dir: Optional[Union[Path, str]] = Path(cache_dir) if cache_dir is not None else None
 
-    def _pre_first_random_transform(self, item_transformed):
+    def _pre_first_random_transform(self, item_transformed) -> Any:
         """
         Process the data from original state up to the first random element.
 
@@ -130,7 +133,7 @@ class PersistentDataset(Dataset):
             item_transformed = apply_transform(_transform, item_transformed)
         return item_transformed
 
-    def _first_random_and_beyond_transform(self, item_transformed):
+    def _first_random_and_beyond_transform(self, item_transformed) -> Any:
         """
         Process the data from before the first random transform to the final state ready for evaluation.
         Args:
@@ -145,7 +148,7 @@ class PersistentDataset(Dataset):
                 item_transformed = apply_transform(_transform, item_transformed)
         return item_transformed
 
-    def _pre_first_random_cachecheck(self, item_transformed):
+    def _pre_first_random_cachecheck(self, item_transformed) -> Any:
         """
             A function to cache the expensive input data transform operations
             so that huge data sets (larger than computer memory) can be processed
@@ -269,7 +272,7 @@ class CacheDataset(Dataset):
                     self._cache[i] = self._load_cache_item(data[i], transform.transforms)
                     process_bar(i + 1, self.cache_num)
 
-    def _load_cache_item(self, item, transforms):
+    def _load_cache_item(self, item, transforms) -> Any:
         for _transform in transforms:
             # execute all the deterministic transforms before the first random transform
             if isinstance(_transform, Randomizable):
@@ -277,7 +280,7 @@ class CacheDataset(Dataset):
             item = apply_transform(_transform, item)
         return item
 
-    def _load_cache_item_thread(self, args):
+    def _load_cache_item_thread(self, args) -> None:
         i, item, transforms = args
         self._cache[i] = self._load_cache_item(item, transforms)
         with self._thread_lock:
@@ -410,7 +413,7 @@ class ArrayDataset(ZipDataset, Randomizable):
         self.set_random_state(seed=get_seed())
         super().__init__([Dataset(x[0], x[1]) for x in items if x[0] is not None])
 
-    def randomize(self):
+    def randomize(self) -> None:
         self.seed = self.R.randint(np.iinfo(np.int32).max)
 
     def __getitem__(self, index: int):

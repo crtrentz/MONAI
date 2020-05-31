@@ -49,7 +49,7 @@ class RandGaussianNoised(Randomizable, MapTransform):
         self._do_transform = False
         self._noise = None
 
-    def randomize(self, im_shape):
+    def randomize(self, im_shape) -> None:
         self._do_transform = self.R.random() < self.prob
         self._noise = self.R.normal(self.mean, self.R.uniform(0, self.std), size=im_shape)
 
@@ -108,7 +108,7 @@ class RandShiftIntensityd(Randomizable, MapTransform):
         self.prob = prob
         self._do_transform = False
 
-    def randomize(self):
+    def randomize(self) -> None:
         self._offset = self.R.uniform(low=self.offsets[0], high=self.offsets[1])
         self._do_transform = self.R.random() < self.prob
 
@@ -178,7 +178,7 @@ class RandScaleIntensityd(Randomizable, MapTransform):
         self.prob = prob
         self._do_transform = False
 
-    def randomize(self):
+    def randomize(self) -> None:
         self.factor = self.R.uniform(low=self.factors[0], high=self.factors[1])
         self._do_transform = self.R.random() < self.prob
 
@@ -320,7 +320,7 @@ class RandAdjustContrastd(Randomizable, MapTransform):
             If single number, value is picked from (0.5, gamma), default is (0.5, 4.5).
     """
 
-    def __init__(self, keys, prob=0.1, gamma=(0.5, 4.5)):
+    def __init__(self, keys, prob=0.1, gamma=(0.5, 4.5)) -> None:
         super().__init__(keys)
         self.prob = prob
         if not isinstance(gamma, (tuple, list)):
@@ -333,7 +333,7 @@ class RandAdjustContrastd(Randomizable, MapTransform):
         self._do_transform = False
         self.gamma_value = None
 
-    def randomize(self):
+    def randomize(self) -> None:
         self._do_transform = self.R.random_sample() < self.prob
         self.gamma_value = self.R.uniform(low=self.gamma[0], high=self.gamma[1])
 

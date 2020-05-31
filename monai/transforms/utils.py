@@ -18,31 +18,32 @@ import numpy as np
 from skimage import measure
 
 from monai.utils.misc import ensure_tuple
+from typing import Any, Tuple
 
 
-def rand_choice(prob=0.5):
+def rand_choice(prob=0.5) -> bool:
     """Returns True if a randomly chosen number is less than or equal to `prob`, by default this is a 50/50 chance."""
     return random.random() <= prob
 
 
-def img_bounds(img):
+def img_bounds(img) -> Any:
     """Returns the minimum and maximum indices of non-zero lines in axis 0 of `img`, followed by that for axis 1."""
     ax0 = np.any(img, axis=0)
     ax1 = np.any(img, axis=1)
     return np.concatenate((np.where(ax0)[0][[0, -1]], np.where(ax1)[0][[0, -1]]))
 
 
-def in_bounds(x, y, margin, maxx, maxy):
+def in_bounds(x, y, margin, maxx, maxy) -> Any:
     """Returns True if (x,y) is within the rectangle (margin, margin, maxx-margin, maxy-margin)."""
     return margin <= x < (maxx - margin) and margin <= y < (maxy - margin)
 
 
-def is_empty(img):
+def is_empty(img) -> bool:
     """Returns True if `img` is empty, that is its maximum value is not greater than its minimum."""
     return not (img.max() > img.min())  # use > instead of <= so that an image full of NaNs will result in True
 
 
-def zero_margins(img, margin):
+def zero_margins(img, margin) -> bool:
     """Returns True if the values within `margin` indices of the edges of `img` in dimensions 1 and 2 are 0."""
     if np.any(img[:, :, :margin]) or np.any(img[:, :, -margin:]):
         return False
@@ -83,7 +84,7 @@ def rescale_array_int_max(arr: np.ndarray, dtype: np.dtype = np.uint16):
     return rescale_array(arr, info.min, info.max).astype(dtype)
 
 
-def copypaste_arrays(src, dest, srccenter, destcenter, dims):
+def copypaste_arrays(src, dest, srccenter, destcenter, dims) -> Tuple[tuple, tuple]:
     """
     Calculate the slices to copy a sliced area of array `src` into array `dest`. The area has dimensions `dims` (use 0
     or None to copy everything in that dimension), the source area is centered at `srccenter` index in `src` and copied
@@ -132,7 +133,7 @@ def copypaste_arrays(src, dest, srccenter, destcenter, dims):
     return tuple(srcslices), tuple(destslices)
 
 
-def resize_center(img, *resize_dims, fill_value=0):
+def resize_center(img, *resize_dims, fill_value=0) -> Any:
     """
     Resize `img` by cropping or expanding the image from the center. The `resize_dims` values are the output dimensions
     (or None to use original dimension of `img`). If a dimension is smaller than that of `img` then the result will be
@@ -151,7 +152,7 @@ def resize_center(img, *resize_dims, fill_value=0):
     return dest
 
 
-def one_hot(labels, num_classes):
+def one_hot(labels, num_classes) -> Any:
     """
     Converts label image `labels` to a one-hot vector with `num_classes` number of channels as last dimension.
     """

@@ -14,6 +14,9 @@ from typing import Optional
 import torch
 import torch.nn.functional as F
 from torch.nn.modules.loss import _WeightedLoss
+from typing import Any
+
+_WeightedLoss: Any
 
 
 class FocalLoss(_WeightedLoss):
@@ -49,7 +52,7 @@ class FocalLoss(_WeightedLoss):
         super(FocalLoss, self).__init__(weight=weight, reduction=reduction)
         self.gamma = gamma
 
-    def forward(self, input, target):
+    def forward(self, input, target) -> Any:
         """
         Args:
             input: (tensor): the shape should be BCH[WD].

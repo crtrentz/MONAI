@@ -24,6 +24,16 @@ from monai.networks.layers.simplelayers import GaussianFilter
 
 import enum
 from typing import Union
+from typing import Any, Generator, List, Tuple, TypeVar
+
+_S = TypeVar('_S')
+_T0 = TypeVar('_T0')
+_T1 = TypeVar('_T1')
+_T2 = TypeVar('_T2')
+_T3 = TypeVar('_T3')
+_T4 = TypeVar('_T4')
+_T5 = TypeVar('_T5')
+_T6 = TypeVar('_T6')
 
 
 class InterpolationCode(enum.IntEnum):
@@ -68,7 +78,7 @@ def get_random_patch(dims, patch_size, rand_state: Optional[np.random.RandomStat
     return tuple(slice(mc, mc + ps) for mc, ps in zip(min_corner, patch_size))
 
 
-def iter_patch_slices(dims, patch_size, start_pos=()):
+def iter_patch_slices(dims, patch_size, start_pos=()) -> Generator[Tuple[slice, ...], Any, None]:
     """
     Yield successive tuples of slices defining patches of size `patch_size` from an array of dimensions `dims`. The
     iteration starts from position `start_pos` in the array, or starting at the origin if this isn't provided. Each
@@ -96,7 +106,7 @@ def iter_patch_slices(dims, patch_size, start_pos=()):
         yield tuple(slice(s, s + p) for s, p in zip(position[::-1], patch_size))
 
 
-def dense_patch_slices(image_size, patch_size, scan_interval):
+def dense_patch_slices(image_size, patch_size, scan_interval) -> List[Tuple[slice, slice]]:
     """
     Enumerate all slices defining 2D/3D patches of size `patch_size` from an `image_size` input image.
 
@@ -192,7 +202,7 @@ def iter_patch(
         arr[...] = arrpad[slices]
 
 
-def get_valid_patch_size(dims, patch_size):
+def get_valid_patch_size(dims, patch_size) -> tuple:
     """
     Given an image of dimensions `dims`, return a patch size tuple taking the dimension from `patch_size` if this is
     not 0/None. Otherwise, or if `patch_size` is shorter than `dims`, the dimension from `dims` is taken. This ensures
@@ -213,7 +223,7 @@ def get_valid_patch_size(dims, patch_size):
     return tuple(min(ms, ps or ms) for ms, ps in zip(dims, patch_size))
 
 
-def list_data_collate(batch):
+def list_data_collate(batch) -> Any:
     """
     Enhancement for PyTorch DataLoader default collate.
     If dataset already returns a list of batch data that generated in transforms, need to merge all data to 1 list.
@@ -226,7 +236,7 @@ def list_data_collate(batch):
     return default_collate(data)
 
 
-def correct_nifti_header_if_necessary(img_nii):
+def correct_nifti_header_if_necessary(img_nii: _T0) -> _T0:
     """
     check nifti object header's format, update the header if needed.
     in the updated image pixdim matches the affine.
@@ -247,7 +257,7 @@ def correct_nifti_header_if_necessary(img_nii):
     return img_nii
 
 
-def rectify_header_sform_qform(img_nii):
+def rectify_header_sform_qform(img_nii: _T0) -> _T0:
     """
     Look at the sform and qform of the nifti object and correct it if any
     incompatibilities with pixel dimensions
@@ -325,7 +335,7 @@ def zoom_affine(affine, scale, diagonal: bool = True):
     return new_affine
 
 
-def compute_shape_offset(spatial_shape, in_affine, out_affine):
+def compute_shape_offset(spatial_shape, in_affine, out_affine) -> Tuple[Any, Any]:
     """
     Given input and output affine, compute appropriate shapes
     in the output space based on the input array's shape.
@@ -354,7 +364,7 @@ def compute_shape_offset(spatial_shape, in_affine, out_affine):
     return out_shape.astype(int), offset
 
 
-def to_affine_nd(r, affine):
+def to_affine_nd(r, affine) -> Any:
     """
     Using elements from affine, to create a new affine matrix by
     assigning the rotation/zoom/scaling matrix and the translation vector.
@@ -429,7 +439,7 @@ def create_file_basename(postfix: str, input_file_name: str, folder_path: str, d
     return os.path.join(subfolder_path, filename + "_" + postfix)
 
 
-def compute_importance_map(patch_size, mode="constant", sigma_scale=0.125, device=None):
+def compute_importance_map(patch_size, mode="constant", sigma_scale=0.125, device=None) -> Any:
     """Get importance map for different weight modes.
 
     Args:

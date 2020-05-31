@@ -20,6 +20,9 @@ from typing import Optional, Hashable
 from monai.utils.misc import ensure_tuple_rep
 from monai.transforms.compose import MapTransform
 from monai.transforms.post.array import SplitChannel, Activations, AsDiscrete, KeepLargestConnectedComponent
+from typing import TypeVar
+
+_T0 = TypeVar('_T0')
 
 
 class SplitChanneld(MapTransform):

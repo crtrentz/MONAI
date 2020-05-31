@@ -15,6 +15,7 @@ import torch
 from ignite.metrics import Metric
 
 from monai.metrics import compute_roc_auc
+from typing import Any
 
 
 class ROCAUC(Metric):
@@ -59,7 +60,7 @@ class ROCAUC(Metric):
         self.add_softmax = add_softmax
         self.average = average
 
-    def reset(self):
+    def reset(self) -> None:
         self._predictions = []
         self._targets = []
 
@@ -73,7 +74,7 @@ class ROCAUC(Metric):
         self._predictions.append(y_pred.clone())
         self._targets.append(y.clone())
 
-    def compute(self):
+    def compute(self) -> Any:
         _prediction_tensor = torch.cat(self._predictions, dim=0)
         _target_tensor = torch.cat(self._targets, dim=0)
         return compute_roc_auc(_prediction_tensor, _target_tensor, self.to_onehot_y, self.add_softmax, self.average)

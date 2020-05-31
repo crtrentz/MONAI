@@ -12,3 +12,6 @@
 from .multi_gpu_supervised_trainer import *
 from .trainer import *
 from .evaluator import *
+from typing import TypeVar
+
+_T0 = TypeVar('_T0')

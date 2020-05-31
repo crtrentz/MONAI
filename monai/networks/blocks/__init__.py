@@ -10,3 +10,6 @@
 # limitations under the License.
 
 from .convolutions import *
+from typing import TypeVar
+
+_T0 = TypeVar('_T0')

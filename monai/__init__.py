@@ -14,6 +14,10 @@ import sys
 
 from ._version import get_versions
 from .utils.module import load_submodules
+from typing import Any
+
+__copyright__: str
+__version__: Any
 
 __version__ = get_versions()["version"]
 del get_versions

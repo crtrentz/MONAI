@@ -41,7 +41,7 @@ class StatsHandler(object):
         tag_name=DEFAULT_TAG,
         key_var_format=DEFAULT_KEY_VAL_FORMAT,
         logger_handler=None,
-    ):
+    ) -> None:
         """
 
         Args:

@@ -13,6 +13,9 @@ from abc import ABC, abstractmethod
 import torch
 from ignite.engine import Engine, State, Events
 from .utils import default_prepare_batch
+from typing import Callable, TypeVar
+
+_FuncT = TypeVar('_FuncT', bound=Callable)
 
 
 class Workflow(ABC, Engine):
@@ -53,7 +56,7 @@ class Workflow(ABC, Engine):
         key_metric=None,
         additional_metrics=None,
         handlers=None,
-    ):
+    ) -> None:
         # pytype: disable=invalid-directive
         # pytype: disable=wrong-arg-count
         super().__init__(iteration_update if iteration_update is not None else self._iteration)
@@ -114,7 +117,7 @@ class Workflow(ABC, Engine):
             for handler in handlers:
                 handler.attach(self)
 
-    def run(self):
+    def run(self) -> None:
         """
         Execute training, validation or evaluation based on Ignite Engine.
 

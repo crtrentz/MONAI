@@ -42,7 +42,7 @@ class CSVSaver:
         self.overwrite: bool = overwrite
         self._data_index: int = 0
 
-    def finalize(self):
+    def finalize(self) -> None:
         """
         Writes the cached dict to a csv
 

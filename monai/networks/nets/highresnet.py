@@ -16,6 +16,7 @@ import torch.nn.functional as F
 
 from monai.networks.layers.convutils import same_padding
 from monai.networks.layers.factories import Conv, Dropout, Norm
+from typing import Any
 
 SUPPORTED_NORM = {
     "batch": lambda spatial_dims: Norm[Norm.BATCH, spatial_dims],
@@ -65,7 +66,7 @@ class ConvNormActi(nn.Module):
             layers.append(dropout_type(p=dropout_prob))
         self.layers = nn.Sequential(*layers)
 
-    def forward(self, x):
+    def forward(self, x) -> Any:
         return self.layers(x)
 
 
@@ -117,7 +118,7 @@ class HighResBlock(nn.Module):
             _in_chns = _out_chns
         self.layers = nn.Sequential(*layers)
 
-    def forward(self, x):
+    def forward(self, x) -> Any:
         x_conv = self.layers(x)
         if self.project is not None:
             return x_conv + self.project(x)
@@ -225,5 +226,5 @@ class HighResNet(nn.Module):
 
         self.blocks = nn.Sequential(*blocks)
 
-    def forward(self, x):
+    def forward(self, x) -> Any:
         return self.blocks(x)

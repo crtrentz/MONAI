@@ -23,7 +23,7 @@ def write_png(
     scale=False,
     plugin=None,
     **plugin_args,
-):
+) -> None:
     """
     Write numpy data into png files to disk.  
     Spatially It supports HW for 2D.(H,W) or (H,W,3) or (H,W,4)

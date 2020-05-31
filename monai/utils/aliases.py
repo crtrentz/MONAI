@@ -17,13 +17,14 @@ import threading
 import sys
 import inspect
 import importlib
+from typing import Any, Callable
 
 
 alias_lock = threading.RLock()
 GlobalAliases = {}
 
 
-def alias(*names):
+def alias(*names) -> Callable[[Any], Any]:
     """
     Stores the decorated function or class in the global aliases table under the given names and as the `__aliases__`
     member of the decorated object. This new member will contain all alias names declared for that object.
@@ -42,7 +43,7 @@ def alias(*names):
     return _outer
 
 
-def resolve_name(name):
+def resolve_name(name) -> Any:
     """
     Search for the declaration (function or class) with the given name. This will first search the list of aliases to
     see if it was declared with this aliased name, then search treating `name` as a fully qualified name, then search

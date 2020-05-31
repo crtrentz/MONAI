@@ -23,6 +23,9 @@ from torch.utils.data._utils.collate import np_str_obj_array_pattern
 from monai.data.utils import correct_nifti_header_if_necessary
 from monai.transforms.compose import Transform
 from monai.utils.misc import ensure_tuple
+from typing import TypeVar
+
+_T0 = TypeVar('_T0')
 
 
 class LoadNifti(Transform):

@@ -14,13 +14,18 @@ from typing import Callable
 import torch
 from ignite.engine import create_supervised_trainer, create_supervised_evaluator, _prepare_batch
 from .utils import get_devices_spec
+from typing import Any, Tuple, TypeVar
+
+_T0 = TypeVar('_T0')
+_T1 = TypeVar('_T1')
+_T2 = TypeVar('_T2')
 
 
-def _default_transform(x, y, y_pred, loss):
+def _default_transform(x, y, y_pred, loss) -> Any:
     return loss.item()
 
 
-def _default_eval_transform(x, y, y_pred):
+def _default_eval_transform(x, y: _T1, y_pred: _T2) -> Tuple[_T2, _T1]:
     return y_pred, y
 
 

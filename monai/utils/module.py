@@ -12,9 +12,12 @@
 from importlib import import_module
 from pkgutil import walk_packages
 from re import match
+from typing import Any, Callable, TypeVar
+
+AnyStr = TypeVar('AnyStr', str, bytes)
 
 
-def export(modname):
+def export(modname) -> Callable[[Any], Any]:
     """
     Make the decorated object a member of the named module. This will also add the object under its aliases if it has
     a `__aliases__` member, thus this decorator should be before the `alias` decorator to pick up those names. Alias
@@ -53,7 +56,7 @@ def load_submodules(basemod, load_all: bool = True, exclude_pattern: str = "(.*[
 
 
 @export("monai.utils")
-def get_full_type_name(typeobj):
+def get_full_type_name(typeobj) -> Any:
     module = typeobj.__module__
     if module is None or module == str.__class__.__module__:
         return typeobj.__name__  # Avoid reporting __builtin__

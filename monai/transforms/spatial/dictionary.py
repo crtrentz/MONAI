@@ -37,6 +37,12 @@ from monai.transforms.spatial.array import (
 )
 from monai.transforms.utils import create_grid
 from monai.utils.misc import ensure_tuple_rep
+from typing import TypeVar
+
+_T0 = TypeVar('_T0')
+_TRand2DElasticd = TypeVar('_TRand2DElasticd', bound=Rand2DElasticd)
+_TRand3DElasticd = TypeVar('_TRand3DElasticd', bound=Rand3DElasticd)
+_TRandAffined = TypeVar('_TRandAffined', bound=RandAffined)
 
 
 class Spacingd(MapTransform):
@@ -215,7 +221,7 @@ class RandRotate90d(Randomizable, MapTransform):
         self._do_transform = False
         self._rand_k = 0
 
-    def randomize(self):
+    def randomize(self) -> None:
         self._rand_k = self.R.randint(self.max_k) + 1
         self._do_transform = self.R.random() < self.prob
 
@@ -342,12 +348,12 @@ class RandAffined(Randomizable, MapTransform):
         self.padding_mode = ensure_tuple_rep(padding_mode, len(self.keys))
         self.mode = ensure_tuple_rep(mode, len(self.keys))
 
-    def set_random_state(self, seed=None, state=None):
+    def set_random_state(self: _TRandAffined, seed=None, state=None) -> _TRandAffined:
         self.rand_affine.set_random_state(seed, state)
         super().set_random_state(seed, state)
         return self
 
-    def randomize(self):
+    def randomize(self) -> None:
         self.rand_affine.randomize()
 
     def __call__(self, data):
@@ -430,7 +436,7 @@ class Rand2DElasticd(Randomizable, MapTransform):
         super().set_random_state(seed, state)
         return self
 
-    def randomize(self, spatial_size):
+    def randomize(self, spatial_size) -> None:
         self.rand_2d_elastic.randomize(spatial_size)
 
     def __call__(self, data):
@@ -518,7 +524,7 @@ class Rand3DElasticd(Randomizable, MapTransform):
         super().set_random_state(seed, state)
         return self
 
-    def randomize(self, grid_size):
+    def randomize(self, grid_size) -> None:
         self.rand_3d_elastic.randomize(grid_size)
 
     def __call__(self, data):
@@ -582,7 +588,7 @@ class RandFlipd(Randomizable, MapTransform):
         self._do_transform = False
         self.flipper = Flip(spatial_axis=spatial_axis)
 
-    def randomize(self):
+    def randomize(self) -> None:
         self._do_transform = self.R.random_sample() < self.prob
 
     def __call__(self, data):
@@ -697,7 +703,7 @@ class RandRotated(Randomizable, MapTransform):
         self._do_transform = False
         self.angle = None
 
-    def randomize(self):
+    def randomize(self) -> None:
         self._do_transform = self.R.random_sample() < self.prob
         self.angle = self.R.uniform(low=self.degrees[0], high=self.degrees[1])
 
@@ -818,7 +824,7 @@ class RandZoomd(Randomizable, MapTransform):
         self._do_transform = False
         self._zoom = None
 
-    def randomize(self):
+    def randomize(self) -> None:
         self._do_transform = self.R.random_sample() < self.prob
         if hasattr(self.min_zoom, "__iter__"):
             self._zoom = (self.R.uniform(l, h) for l, h in zip(self.min_zoom, self.max_zoom))

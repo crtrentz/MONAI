@@ -18,6 +18,7 @@ from ignite.engine import Engine
 from .workflow import Workflow
 from .utils import default_prepare_batch
 from .utils import CommonKeys as Keys
+from typing import Any, Dict
 
 
 class Evaluator(Workflow):
@@ -75,7 +76,7 @@ class Evaluator(Workflow):
         self.state.iteration = 0
         super().run()
 
-    def get_validation_stats(self):
+    def get_validation_stats(self) -> Dict[str, Any]:
         return {
             "best_validation_metric": self.state.best_metric,
             "best_validation_epoch": self.state.best_metric_epoch,
