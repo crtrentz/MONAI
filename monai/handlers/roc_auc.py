@@ -9,7 +9,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Sequence, Union, Callable
+from typing import Optional, Sequence, Union, Callable, List
 
 import torch
 from ignite.metrics import Metric
@@ -61,8 +61,8 @@ class ROCAUC(Metric):
         self.average = average
 
     def reset(self) -> None:
-        self._predictions = []
-        self._targets = []
+        self._predictions: List[Any] = []
+        self._targets: List[Any] = []
 
     def update(self, output: Sequence[torch.Tensor]):
         y_pred, y = output

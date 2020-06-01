@@ -72,6 +72,7 @@ class StatsHandler(object):
 
         self.tag_name = tag_name
         self.key_var_format = key_var_format
+        assert self.logger is not None
         if logger_handler is not None:
             self.logger.addHandler(logger_handler)  # pytype: disable=attribute-error
 
@@ -126,6 +127,7 @@ class StatsHandler(object):
             e (Exception): the exception caught in Ignite during engine.run().
 
         """
+        assert self.logger is not None
         self.logger.exception(f"Exception: {e}")
         # import traceback
         # traceback.print_exc()
@@ -147,6 +149,7 @@ class StatsHandler(object):
         for name in sorted(prints_dict):
             value = prints_dict[name]
             out_str += self.key_var_format.format(name, value)
+        assert self.logger is not None
         self.logger.info(out_str)
 
         if hasattr(engine.state, "key_metric_name"):
@@ -201,5 +204,5 @@ class StatsHandler(object):
         num_epochs = engine.state.max_epochs
 
         base_str = f"Epoch: {current_epoch}/{num_epochs}, Iter: {current_iteration}/{num_iterations} --"
-
+        assert self.logger is not None
         self.logger.info(" ".join([base_str, out_str]))
