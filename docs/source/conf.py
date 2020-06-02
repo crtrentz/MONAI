@@ -49,7 +49,7 @@ exclude_patterns = [
 ]
 
 
-def generate_apidocs(*args):
+def generate_apidocs(*args) -> None:
     """Generate API docs automatically by trawling the available modules"""
     module_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "monai"))
     output_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "apidocs"))
@@ -67,7 +67,7 @@ def generate_apidocs(*args):
     )
 
 
-def setup(app):
+def setup(app) -> None:
     # Hook to allow for automatic generation of API docs
     # before doc deployment begins.
     app.connect("builder-inited", generate_apidocs)

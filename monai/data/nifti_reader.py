@@ -34,7 +34,7 @@ class NiftiDataset(Dataset, Randomizable):
         seg_transform: Optional[Callable] = None,
         image_only: bool = True,
         dtype: Optional[np.dtype] = np.float32,
-    ):
+    ) -> None:
         """
         Initializes the dataset with the image and segmentation filename lists. The transform `transform` is applied
         to the images and `seg_transform` to the segmentations.
@@ -63,10 +63,10 @@ class NiftiDataset(Dataset, Randomizable):
         self.dtype: Optional[np.dtype] = dtype
         self.set_random_state(seed=get_seed())
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.image_files)
 
-    def randomize(self):
+    def randomize(self) -> None:
         self.seed = self.R.randint(np.iinfo(np.int32).max)
 
     def __getitem__(self, index: int):

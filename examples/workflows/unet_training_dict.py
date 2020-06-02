@@ -41,7 +41,7 @@ from monai.inferers import SimpleInferer, SlidingWindowInferer
 from monai.engines.utils import CommonKeys as Keys
 
 
-def main():
+def main() -> None:
     monai.config.print_config()
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 

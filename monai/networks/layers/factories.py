@@ -73,7 +73,7 @@ class LayerFactory:
     callables. These functions are referred to by name and can be added at any time.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.factories = {}
 
     @property
@@ -84,7 +84,7 @@ class LayerFactory:
 
         return tuple(self.factories)
 
-    def add_factory_callable(self, name, func):
+    def add_factory_callable(self, name, func) -> None:
         """
         Add the factory function to this object under the given name.
         """
