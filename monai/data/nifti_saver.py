@@ -65,7 +65,7 @@ class NiftiSaver:
         self.dtype: Optional[np.dtype] = dtype
         self._data_index: int = 0
 
-    def save(self, data: Union[torch.Tensor, np.ndarray], meta_data: Optional[dict] = None) -> None:
+    def save(self, data: np.ndarray, meta_data: Optional[dict] = None) -> None:
         """
         Save data into a Nifti file.
         The metadata could optionally have the following keys:
