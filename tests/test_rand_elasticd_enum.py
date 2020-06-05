@@ -16,7 +16,7 @@ import torch
 from parameterized import parameterized
 
 from monai.transforms import Rand3DElasticd
-from monai.utils.enums import InterpolationMode
+from monai.utils.enums import InterpolationMode, PaddingMode
 
 TEST_CASES = [
     [
@@ -28,7 +28,8 @@ TEST_CASES = [
             "as_tensor_output": False,
             "device": None,
             "spatial_size": (2, 2, 2),
-            "mode": InterpolationMode.BILINEAR
+            "mode": InterpolationMode.BILINEAR,
+            "padding_mode": PaddingMode.ZEROS,
         },
         {"img": torch.ones((2, 3, 3, 3)), "seg": torch.ones((2, 3, 3, 3))},
         np.ones((2, 2, 2, 2)),
@@ -42,7 +43,8 @@ TEST_CASES = [
             "as_tensor_output": False,
             "device": None,
             "spatial_size": (2, 2, 2),
-            "mode": InterpolationMode.BILINEAR
+            "mode": InterpolationMode.BILINEAR,
+            "padding_mode": PaddingMode.ZEROS,
         },
         {"img": torch.arange(27).reshape((1, 3, 3, 3)), "seg": torch.arange(27).reshape((1, 3, 3, 3))},
         np.array([[[[3.2385552, 4.753422], [7.779232, 9.286472]], [[16.769115, 18.287868], [21.300673, 22.808704]]]]),
@@ -58,6 +60,7 @@ TEST_CASES = [
             "device": None,
             "spatial_size": (2, 2, 2),
             "mode": InterpolationMode.BILINEAR,
+            "padding_mode": PaddingMode.ZEROS,
         },
         {"img": torch.arange(27).reshape((1, 3, 3, 3)), "seg": torch.arange(27).reshape((1, 3, 3, 3))},
         np.array([[[[1.6566806, 7.695548], [7.4342523, 13.580086]], [[11.776854, 18.669481], [18.396517, 21.551771]]]]),
@@ -73,6 +76,7 @@ TEST_CASES = [
             "as_tensor_output": True,
             "device": torch.device("cpu:0"),
             "spatial_size": (2, 2, 2),
+            "padding_mode": PaddingMode.ZEROS,
         },
         {"img": torch.arange(27).reshape((1, 3, 3, 3)), "seg": torch.arange(27).reshape((1, 3, 3, 3))},
         {
@@ -93,6 +97,7 @@ TEST_CASES = [
             "as_tensor_output": True,
             "device": torch.device("cpu:0"),
             "spatial_size": (2, 2, 2),
+            "padding_mode": PaddingMode.ZEROS,
         },
         {"img": torch.arange(27).reshape((1, 3, 3, 3)), "seg": torch.arange(27).reshape((1, 3, 3, 3))},
         {
@@ -113,6 +118,7 @@ TEST_CASES = [
             "as_tensor_output": True,
             "device": torch.device("cpu:0"),
             "spatial_size": (2, 2, 2),
+            "padding_mode": PaddingMode.ZEROS,
         },
         {"img": torch.arange(27).reshape((1, 3, 3, 3)), "seg": torch.arange(27).reshape((1, 3, 3, 3))},
         {
@@ -133,6 +139,7 @@ TEST_CASES = [
             "as_tensor_output": True,
             "device": torch.device("cpu:0"),
             "spatial_size": (2, 2, 2),
+            "padding_mode": PaddingMode.ZEROS,
         },
         {"img": torch.arange(27).reshape((1, 3, 3, 3)), "seg": torch.arange(27).reshape((1, 3, 3, 3))},
         {

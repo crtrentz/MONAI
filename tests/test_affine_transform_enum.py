@@ -17,7 +17,7 @@ from parameterized import parameterized
 
 from monai.networks.layers import AffineTransform
 from monai.networks.utils import normalize_transform, to_norm_affine
-from monai.utils.enum import InterpolationMode
+from monai.utils.enum import InterpolationMode, PaddingMode
 
 
 class TestNormTransformEnum(unittest.TestCase):
@@ -26,7 +26,9 @@ class TestNormTransformEnum(unittest.TestCase):
         affine = [[np.cos(t), -np.sin(t), 0], [np.sin(t), np.cos(t), 0], [0, 0, 1]]
         affine = torch.as_tensor(affine, device=torch.device("cpu:0"), dtype=torch.float32)
         image = torch.arange(24).view(1, 1, 4, 6).to(device=torch.device("cpu:0"))
-        xform = AffineTransform((3, 4), padding_mode="border", align_corners=True, mode=InterpolationMode.BILINEAR)
+        xform = AffineTransform(
+            (3, 4), padding_mode=PaddingMode.BORDER, align_corners=True, mode=InterpolationMode.BILINEAR
+        )
         out = xform(image, affine)
         out = out.detach().cpu().numpy()
         expected = [
@@ -43,7 +45,9 @@ class TestNormTransformEnum(unittest.TestCase):
         if torch.cuda.is_available():
             affine = torch.as_tensor(affine, device=torch.device("cuda:0"), dtype=torch.float32)
             image = torch.arange(24).view(1, 1, 4, 6).to(device=torch.device("cuda:0"))
-            xform = AffineTransform(padding_mode="border", align_corners=True, mode=InterpolationMode.BILINEAR)
+            xform = AffineTransform(
+                padding_mode=PaddingMode.BORDER, align_corners=True, mode=InterpolationMode.BILINEAR
+            )
             out = xform(image, affine, (3, 4))
             out = out.detach().cpu().numpy()
             expected = [
@@ -62,7 +66,9 @@ class TestNormTransformEnum(unittest.TestCase):
         affine = [[1, 0, 0, 0], [0.0, np.cos(t), -np.sin(t), 0], [0, np.sin(t), np.cos(t), 0], [0, 0, 0, 1]]
         affine = torch.as_tensor(affine, device=torch.device("cpu:0"), dtype=torch.float32)
         image = torch.arange(48).view(2, 1, 4, 2, 3).to(device=torch.device("cpu:0"))
-        xform = AffineTransform((3, 4, 2), padding_mode="border", align_corners=False, mode=InterpolationMode.BILINEAR)
+        xform = AffineTransform(
+            (3, 4, 2), padding_mode=PaddingMode.BORDER, align_corners=False, mode=InterpolationMode.BILINEAR
+        )
         out = xform(image, affine)
         out = out.detach().cpu().numpy()
         expected = [
@@ -86,7 +92,9 @@ class TestNormTransformEnum(unittest.TestCase):
         if torch.cuda.is_available():
             affine = torch.as_tensor(affine, device=torch.device("cuda:0"), dtype=torch.float32)
             image = torch.arange(48).view(2, 1, 4, 2, 3).to(device=torch.device("cuda:0"))
-            xform = AffineTransform(padding_mode="border", align_corners=False, mode=InterpolationMode.BILINEAR)
+            xform = AffineTransform(
+                padding_mode=PaddingMode.BORDER, align_corners=False, mode=InterpolationMode.BILINEAR
+            )
             out = xform(image, affine, (3, 4, 2))
             out = out.detach().cpu().numpy()
             expected = [
@@ -112,7 +120,9 @@ class TestNormTransformEnum(unittest.TestCase):
             t = np.pi / 3
             affine = [[1, 0, 0, 0], [0.0, np.cos(t), -np.sin(t), 0], [0, np.sin(t), np.cos(t), 0], [0, 0, 0, 1]]
             affine = torch.as_tensor(affine, device=torch.device("cpu:0"), dtype=torch.float32)
-            xform = AffineTransform((3, 4, 2), padding_mode="border", align_corners=False, mode=InterpolationMode.BILINEAR)
+            xform = AffineTransform(
+                (3, 4, 2), padding_mode=PaddingMode.BORDER, align_corners=False, mode=InterpolationMode.BILINEAR
+            )
             xform(torch.as_tensor([1, 2, 3]), affine)
 
         with self.assertRaises(ValueError):  # output shape too small
@@ -120,7 +130,9 @@ class TestNormTransformEnum(unittest.TestCase):
             affine = [[1, 0, 0, 0], [0.0, np.cos(t), -np.sin(t), 0], [0, np.sin(t), np.cos(t), 0], [0, 0, 0, 1]]
             affine = torch.as_tensor(affine, device=torch.device("cpu:0"), dtype=torch.float32)
             image = torch.arange(48).view(2, 1, 4, 2, 3).to(device=torch.device("cpu:0"))
-            xform = AffineTransform((3, 4), padding_mode="border", align_corners=False, mode=InterpolationMode.BILINEAR)
+            xform = AffineTransform(
+                (3, 4), padding_mode=PaddingMode.BORDER, align_corners=False, mode=InterpolationMode.BILINEAR
+            )
             xform(image, affine)
 
         with self.assertRaises(ValueError):  # incorrect affine
@@ -129,7 +141,9 @@ class TestNormTransformEnum(unittest.TestCase):
             affine = torch.as_tensor(affine, device=torch.device("cpu:0"), dtype=torch.float32)
             affine = affine.unsqueeze(0).unsqueeze(0)
             image = torch.arange(48).view(2, 1, 4, 2, 3).to(device=torch.device("cpu:0"))
-            xform = AffineTransform((2, 3, 4), padding_mode="border", align_corners=False, mode=InterpolationMode.BILINEAR)
+            xform = AffineTransform(
+                (2, 3, 4), padding_mode=PaddingMode.BORDER, align_corners=False, mode=InterpolationMode.BILINEAR
+            )
             xform(image, affine)
 
         with self.assertRaises(ValueError):  # batch doesn't match
@@ -139,13 +153,17 @@ class TestNormTransformEnum(unittest.TestCase):
             affine = affine.unsqueeze(0)
             affine = affine.repeat(3, 1, 1)
             image = torch.arange(48).view(2, 1, 4, 2, 3).to(device=torch.device("cpu:0"))
-            xform = AffineTransform((2, 3, 4), padding_mode="border", align_corners=False, mode=InterpolationMode.BILINEAR)
+            xform = AffineTransform(
+                (2, 3, 4), padding_mode=PaddingMode.BORDER, align_corners=False, mode=InterpolationMode.BILINEAR
+            )
             xform(image, affine)
 
         with self.assertRaises(ValueError):  # wrong affine
             affine = torch.as_tensor([[1, 0, 0, 0], [0, 0, 0, 1]])
             image = torch.arange(48).view(2, 1, 4, 2, 3).to(device=torch.device("cpu:0"))
-            xform = AffineTransform((2, 3, 4), padding_mode="border", align_corners=False, mode=InterpolationMode.BILINEAR)
+            xform = AffineTransform(
+                (2, 3, 4), padding_mode=PaddingMode.BORDER, align_corners=False, mode=InterpolationMode.BILINEAR
+            )
             xform(image, affine)
 
 
