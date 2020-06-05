@@ -70,10 +70,12 @@ class TestNiftiLoadReadEnum(unittest.TestCase):
                 header["affine"],
                 header.get("original_affine", None),
                 interp_order=InterpolationOrder.SPLINE3,
-                mode=ExtendMode.CONSTANT
+                mode=ExtendMode.CONSTANT,
             )
         elif affine is not None:
-            write_nifti(data_array, test_image, affine, interp_order=InterpolationOrder.SPLINE3, mode=ExtendMode.CONSTANT)
+            write_nifti(
+                data_array, test_image, affine, interp_order=InterpolationOrder.SPLINE3, mode=ExtendMode.CONSTANT
+            )
         else:
             write_nifti(data_array, test_image, interp_order=InterpolationOrder.SPLINE3, mode=ExtendMode.CONSTANT)
         saved = nib.load(test_image)
@@ -90,12 +92,19 @@ class TestNiftiLoadReadEnum(unittest.TestCase):
         np.set_printoptions(suppress=True, precision=3)
         test_image = make_nifti_image(np.arange(64).reshape(1, 8, 8), np.diag([1.5, 1.5, 1.5, 1]))
         data, header = LoadNifti(as_closest_canonical=False)(test_image)
-        data, original_affine, new_affine = Spacing([0.8, 0.8, 0.8])(data[None], header["affine"], interp_order=InterpolationOrder.SPLINE0)
+        data, original_affine, new_affine = Spacing([0.8, 0.8, 0.8])(
+            data[None], header["affine"], interp_order=InterpolationOrder.SPLINE0
+        )
         data, _, new_affine = Orientation("ILP")(data, new_affine)
         if os.path.exists(test_image):
             os.remove(test_image)
         write_nifti(
-            data[0], test_image, new_affine, original_affine, interp_order=InterpolationOrder.SPLINE0, mode=ExtendMode.REFLECT
+            data[0],
+            test_image,
+            new_affine,
+            original_affine,
+            interp_order=InterpolationOrder.SPLINE0,
+            mode=ExtendMode.REFLECT,
         )
         saved = nib.load(test_image)
         saved_data = saved.get_fdata()
@@ -127,7 +136,7 @@ class TestNiftiLoadReadEnum(unittest.TestCase):
                 affine=np.diag([1, 1, 1]),
                 target_affine=np.diag([1.4, 2.0, 1]),
                 interp_order=InterpolationOrder.SPLINE3,
-                mode=ExtendMode.CONSTANT
+                mode=ExtendMode.CONSTANT,
             )
             out = nib.load(image_name)
             np.testing.assert_allclose(out.get_fdata(), [0, 1, 3, 0])
@@ -135,7 +144,14 @@ class TestNiftiLoadReadEnum(unittest.TestCase):
         with tempfile.TemporaryDirectory() as out_dir:
             image_name = os.path.join(out_dir, "test.nii.gz")
             img = np.arange(5).reshape(-1)
-            write_nifti(img, image_name, affine=[[1]], target_affine=[[1.4]], interp_order=InterpolationOrder.SPLINE3, mode=ExtendMode.CONSTANT)
+            write_nifti(
+                img,
+                image_name,
+                affine=[[1]],
+                target_affine=[[1.4]],
+                interp_order=InterpolationOrder.SPLINE3,
+                mode=ExtendMode.CONSTANT,
+            )
             out = nib.load(image_name)
             np.testing.assert_allclose(out.get_fdata(), [0, 1, 3, 0])
             np.testing.assert_allclose(out.affine, np.diag([1.4, 1, 1, 1]))
@@ -148,7 +164,7 @@ class TestNiftiLoadReadEnum(unittest.TestCase):
                 affine=np.diag([1.5, 1.5, 1.5]),
                 target_affine=np.diag([1.5, 1.5, 1.5]),
                 interp_order=InterpolationOrder.SPLINE3,
-                mode=ExtendMode.CONSTANT
+                mode=ExtendMode.CONSTANT,
             )
             out = nib.load(image_name)
             np.testing.assert_allclose(out.get_fdata(), np.arange(5).reshape(-1))
@@ -164,7 +180,7 @@ class TestNiftiLoadReadEnum(unittest.TestCase):
                 affine=np.diag([1]),
                 target_affine=np.diag([1.4]),
                 interp_order=InterpolationOrder.SPLINE3,
-                mode=ExtendMode.CONSTANT
+                mode=ExtendMode.CONSTANT,
             )
             out = nib.load(image_name)
             np.testing.assert_allclose(out.get_fdata(), [[0, 1, 2], [0, 0, 0]])
@@ -178,7 +194,7 @@ class TestNiftiLoadReadEnum(unittest.TestCase):
                 affine=np.diag([1, 1, 1, 3, 3]),
                 target_affine=np.diag([1.4, 2.0, 1, 3, 5]),
                 interp_order=InterpolationOrder.SPLINE3,
-                mode=ExtendMode.CONSTANT
+                mode=ExtendMode.CONSTANT,
             )
             out = nib.load(image_name)
             np.testing.assert_allclose(out.get_fdata(), [[0, 2, 4]])
@@ -194,7 +210,7 @@ class TestNiftiLoadReadEnum(unittest.TestCase):
                 affine=np.diag([1]),
                 target_affine=np.diag([1.4]),
                 interp_order=InterpolationOrder.SPLINE3,
-                mode=ExtendMode.CONSTANT
+                mode=ExtendMode.CONSTANT,
             )
             out = nib.load(image_name)
             np.testing.assert_allclose(out.get_fdata(), [[[0, 1, 2], [3, 4, 5]]])
@@ -208,7 +224,7 @@ class TestNiftiLoadReadEnum(unittest.TestCase):
                 affine=np.diag([1, 1, 1, 3, 3]),
                 target_affine=np.diag([1.4, 2.0, 2, 3, 5]),
                 interp_order=InterpolationOrder.SPLINE3,
-                mode=ExtendMode.CONSTANT
+                mode=ExtendMode.CONSTANT,
             )
             out = nib.load(image_name)
             np.testing.assert_allclose(out.get_fdata(), [[[0, 2, 4]]])
@@ -224,7 +240,7 @@ class TestNiftiLoadReadEnum(unittest.TestCase):
                 affine=np.diag([1.4, 1]),
                 target_affine=np.diag([1, 1.4, 1]),
                 interp_order=InterpolationOrder.SPLINE3,
-                mode=ExtendMode.CONSTANT
+                mode=ExtendMode.CONSTANT,
             )
             out = nib.load(image_name)
             np.testing.assert_allclose(out.get_fdata(), [[[[0, 1], [2, 3], [4, 5]]]])
@@ -238,7 +254,7 @@ class TestNiftiLoadReadEnum(unittest.TestCase):
                 affine=np.diag([1, 1, 1, 3, 3]),
                 target_affine=np.diag([1.4, 2.0, 2, 3, 5]),
                 interp_order=InterpolationOrder.SPLINE3,
-                mode=ExtendMode.CONSTANT
+                mode=ExtendMode.CONSTANT,
             )
             out = nib.load(image_name)
             np.testing.assert_allclose(out.get_fdata(), [[[[0], [2], [4]]]])
@@ -254,7 +270,7 @@ class TestNiftiLoadReadEnum(unittest.TestCase):
                 affine=np.diag([1]),
                 target_affine=np.diag([1.4]),
                 interp_order=InterpolationOrder.SPLINE3,
-                mode=ExtendMode.CONSTANT
+                mode=ExtendMode.CONSTANT,
             )
             out = nib.load(image_name)
             np.testing.assert_allclose(
@@ -271,7 +287,7 @@ class TestNiftiLoadReadEnum(unittest.TestCase):
                 affine=np.diag([1, 1, 1, 3, 3]),
                 target_affine=np.diag([1.4, 2.0, 2, 3, 5]),
                 interp_order=InterpolationOrder.SPLINE3,
-                mode=ExtendMode.CONSTANT
+                mode=ExtendMode.CONSTANT,
             )
             out = nib.load(image_name)
             np.testing.assert_allclose(out.get_fdata(), np.array([[[[[0.0, 1.0]], [[4.0, 5.0]], [[8.0, 9.0]]]]]))

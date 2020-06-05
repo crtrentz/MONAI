@@ -18,7 +18,12 @@ from monai.utils.enums import ExtendMode
 from monai.transforms import Spacing
 
 TEST_CASES = [
-    [{"pixdim": (2.0,), "mode": ExtendMode.CONSTANT}, np.ones((1, 2)), {"affine": np.eye(4)}, np.array([[1.0, 0.0]])],  # data
+    [
+        {"pixdim": (2.0,), "mode": ExtendMode.CONSTANT},
+        np.ones((1, 2)),
+        {"affine": np.eye(4)},
+        np.array([[1.0, 0.0]]),
+    ],  # data
     [
         {"pixdim": (1.0, 0.2, 1.5), "mode": ExtendMode.CONSTANT},
         np.ones((1, 2, 1, 2)),  # data
