@@ -28,7 +28,7 @@ TEST_CASE_2 = [
 ]
 
 
-class TestSpatialPad(unittest.TestCase):
+class TestSpatialPadEnum(unittest.TestCase):
     @parameterized.expand([TEST_CASE_1, TEST_CASE_2])
     def test_pad_shape(self, input_param, input_data, expected_val):
         padder = SpatialPad(**input_param)

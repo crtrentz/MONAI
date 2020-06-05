@@ -152,7 +152,7 @@ TEST_CASES = [
 ]
 
 
-class TestRand3DElasticdEnums(unittest.TestCase):
+class TestRand3DElasticdEnum(unittest.TestCase):
     @parameterized.expand(TEST_CASES)
     def test_rand_3d_elasticd(self, input_param, input_data, expected_val):
         g = Rand3DElasticd(**input_param)
