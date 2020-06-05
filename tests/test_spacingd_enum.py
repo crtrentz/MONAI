@@ -14,7 +14,7 @@ import unittest
 import numpy as np
 
 from monai.transforms import Spacingd
-from monai.utils.enums import InterpolationOrder
+from monai.utils.enums import InterpolationOrder, ExtendMode
 
 
 class TestSpacingDEnum(unittest.TestCase):
@@ -25,7 +25,7 @@ class TestSpacingDEnum(unittest.TestCase):
             "image.affine": np.eye(4),
             "seg.affine": np.eye(4),
         }
-        spacing = Spacingd(keys=("image", "seg"), interp_order=InterpolationOrder.SPLINE0, pixdim=(0.2,))
+        spacing = Spacingd(keys=("image", "seg"), interp_order=InterpolationOrder.SPLINE0, pixdim=(0.2,), mode=ExtendMode.NEAREST)
         res = spacing(data)
         self.assertEqual(("image", "image.affine", "seg", "seg.affine"), tuple(sorted(res)))
         np.testing.assert_allclose(res["image"].shape, (2, 46))
@@ -34,7 +34,7 @@ class TestSpacingDEnum(unittest.TestCase):
     def test_interp_sep_tuple_enum(self):
         data = {"image": np.ones((2, 10)), "seg": np.ones((2, 10)), "image.affine": np.eye(4), "seg.affine": np.eye(4)}
         spacing = Spacingd(
-            keys=("image", "seg"), interp_order=(InterpolationOrder.SPLINE2, InterpolationOrder.SPLINE0), pixdim=(0.2,)
+            keys=("image", "seg"), interp_order=(InterpolationOrder.SPLINE2, InterpolationOrder.SPLINE0), pixdim=(0.2,), mode=ExtendMode.NEAREST
         )
         res = spacing(data)
         self.assertEqual(("image", "image.affine", "seg", "seg.affine"), tuple(sorted(res)))
@@ -43,7 +43,7 @@ class TestSpacingDEnum(unittest.TestCase):
 
     def test_interp_sep_tuple_mix(self):
         data = {"image": np.ones((2, 10)), "seg": np.ones((2, 10)), "image.affine": np.eye(4), "seg.affine": np.eye(4)}
-        spacing = Spacingd(keys=("image", "seg"), interp_order=(2, InterpolationOrder.SPLINE0), pixdim=(0.2,))
+        spacing = Spacingd(keys=("image", "seg"), interp_order=(2, InterpolationOrder.SPLINE0), pixdim=(0.2,), mode=ExtendMode.NEAREST)
         res = spacing(data)
         self.assertEqual(("image", "image.affine", "seg", "seg.affine"), tuple(sorted(res)))
         np.testing.assert_allclose(res["image"].shape, (2, 46))
@@ -52,7 +52,7 @@ class TestSpacingDEnum(unittest.TestCase):
     def test_interp_sep_list_enum(self):
         data = {"image": np.ones((2, 10)), "seg": np.ones((2, 10)), "image.affine": np.eye(4), "seg.affine": np.eye(4)}
         spacing = Spacingd(
-            keys=("image", "seg"), interp_order=[InterpolationOrder.SPLINE2, InterpolationOrder.SPLINE0], pixdim=(0.2,)
+            keys=("image", "seg"), interp_order=[InterpolationOrder.SPLINE2, InterpolationOrder.SPLINE0], pixdim=(0.2,), mode=ExtendMode.NEAREST
         )
         res = spacing(data)
         self.assertEqual(("image", "image.affine", "seg", "seg.affine"), tuple(sorted(res)))
@@ -61,7 +61,7 @@ class TestSpacingDEnum(unittest.TestCase):
 
     def test_interp_sep_list_mix(self):
         data = {"image": np.ones((2, 10)), "seg": np.ones((2, 10)), "image.affine": np.eye(4), "seg.affine": np.eye(4)}
-        spacing = Spacingd(keys=("image", "seg"), interp_order=[2, InterpolationOrder.SPLINE0], pixdim=(0.2,))
+        spacing = Spacingd(keys=("image", "seg"), interp_order=[2, InterpolationOrder.SPLINE0], pixdim=(0.2,), mode=ExtendMode.NEAREST)
         res = spacing(data)
         self.assertEqual(("image", "image.affine", "seg", "seg.affine"), tuple(sorted(res)))
         np.testing.assert_allclose(res["image"].shape, (2, 46))
@@ -69,7 +69,7 @@ class TestSpacingDEnum(unittest.TestCase):
 
     def test_interp_sep_list_int(self):
         data = {"image": np.ones((2, 10)), "seg": np.ones((2, 10)), "image.affine": np.eye(4), "seg.affine": np.eye(4)}
-        spacing = Spacingd(keys=("image", "seg"), interp_order=[2, 0], pixdim=(0.2,))
+        spacing = Spacingd(keys=("image", "seg"), interp_order=[2, 0], pixdim=(0.2,), mode=ExtendMode.NEAREST)
         res = spacing(data)
         self.assertEqual(("image", "image.affine", "seg", "seg.affine"), tuple(sorted(res)))
         np.testing.assert_allclose(res["image"].shape, (2, 46))
