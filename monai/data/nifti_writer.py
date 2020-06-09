@@ -25,7 +25,7 @@ def write_nifti(
     output_shape=None,
     interp_order=InterpolationCode.SPLINE3,
     mode="constant",
-    cval=0,
+    cval: float = 0,
     dtype=None,
 ):
     """
@@ -74,7 +74,7 @@ def write_nifti(
         mode (`reflect|constant|nearest|mirror|wrap`):
             The mode parameter determines how the input array is extended beyond its boundaries.
             this option is used when `resample = True`.
-        cval (scalar): Value to fill past edges of input if mode is "constant". Default is 0.0.
+        cval: Value to fill past edges of input if mode is "constant". Default is 0.0.
             this option is used when `resample = True`.
         dtype (np.dtype, optional): convert the image to save to this data type.
     """

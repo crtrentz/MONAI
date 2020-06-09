@@ -25,12 +25,12 @@ class RandGaussianNoise(Randomizable, Transform):
     """Add Gaussian noise to image.
 
     Args:
-        prob (float): Probability to add Gaussian noise.
+        prob: Probability to add Gaussian noise.
         mean (float or array of floats): Mean or “centre” of the distribution.
-        std (float): Standard deviation (spread) of distribution.
+        std: Standard deviation (spread) of distribution.
     """
 
-    def __init__(self, prob: float = 0.1, mean: float = 0.0, std: float = 0.1):
+    def __init__(self, prob: float = 0.1, mean=0.0, std: float = 0.1):
         self.prob = prob
         self.mean = mean
         self.std = std
@@ -50,10 +50,10 @@ class ShiftIntensity(Transform):
     """Shift intensity uniformly for the entire image with specified `offset`.
 
     Args:
-        offset (int or float): offset value to shift the intensity of image.
+        offset: offset value to shift the intensity of image.
     """
 
-    def __init__(self, offset: Union[int, float]):
+    def __init__(self, offset: float):
         self.offset = offset
 
     def __call__(self, img):
@@ -69,7 +69,7 @@ class RandShiftIntensity(Randomizable, Transform):
         Args:
             offsets(int, float, tuple or list): offset range to randomly shift.
                 if single number, offset value is picked from (-offsets, offsets).
-            prob (float): probability of shift.
+            prob: probability of shift.
         """
         self.offsets = (-offsets, offsets) if not isinstance(offsets, (list, tuple)) else offsets
         assert len(self.offsets) == 2, "offsets should be a number or pair of numbers."
@@ -95,16 +95,13 @@ class ScaleIntensity(Transform):
     """
 
     def __init__(
-        self,
-        minv: Optional[Union[int, float]] = 0.0,
-        maxv: Optional[Union[int, float]] = 1.0,
-        factor: Optional[float] = None,
+        self, minv: Optional[float] = 0.0, maxv: Optional[float] = 1.0, factor: Optional[float] = None,
     ):
         """
         Args:
-            minv (int or float): minimum value of output data.
-            maxv (int or float): maximum value of output data.
-            factor (float): factor scale by ``v = v * (1 + factor)``.
+            minv: minimum value of output data.
+            maxv: maximum value of output data.
+            factor: factor scale by ``v = v * (1 + factor)``.
         """
         self.minv = minv
         self.maxv = maxv
@@ -128,7 +125,7 @@ class RandScaleIntensity(Randomizable, Transform):
         Args:
             factors(float, tuple or list): factor range to randomly scale by ``v = v * (1 + factor)``.
                 if single number, factor value is picked from (-factors, factors).
-            prob (float): probability of scale.
+            prob: probability of scale.
 
         """
         self.factors = (-factors, factors) if not isinstance(factors, (list, tuple)) else factors
@@ -203,13 +200,13 @@ class ThresholdIntensity(Transform):
     And fill the remaining parts of the image to the `cval` value.
 
     Args:
-        threshold (float or int): the threshold to filter intensity values.
+        threshold: the threshold to filter intensity values.
         above (bool): filter values above the threshold or below the threshold, default is True.
-        cval (float or int): value to fill the remaining parts of the image, default is 0.
+        cval: value to fill the remaining parts of the image, default is 0.
     """
 
-    def __init__(self, threshold: Union[int, float], above: bool = True, cval: Union[int, float] = 0):
-        assert isinstance(threshold, (float, int)), "must set the threshold to filter intensity."
+    def __init__(self, threshold: float, above: bool = True, cval: float = 0):
+        assert isinstance(threshold, float), "must set the threshold to filter intensity."
         self.threshold = threshold
         self.above = above
         self.cval = cval
@@ -223,20 +220,15 @@ class ScaleIntensityRange(Transform):
     Scaling from [a_min, a_max] to [b_min, b_max] with clip option.
 
     Args:
-        a_min (int or float): intensity original range min.
-        a_max (int or float): intensity original range max.
-        b_min (int or float): intensity target range min.
-        b_max (int or float): intensity target range max.
+        a_min: intensity original range min.
+        a_max: intensity original range max.
+        b_min: intensity target range min.
+        b_max: intensity target range max.
         clip (bool): whether to perform clip after scaling.
     """
 
     def __init__(
-        self,
-        a_min: Union[int, float],
-        a_max: Union[int, float],
-        b_min: Union[int, float],
-        b_max: Union[int, float],
-        clip: bool = False,
+        self, a_min: float, a_max: float, b_min: float, b_max: float, clip: bool = False,
     ):
         self.a_min = a_min
         self.a_max = a_max
@@ -258,11 +250,11 @@ class AdjustContrast(Transform):
         `x = ((x - min) / intensity_range) ^ gamma * intensity_range + min`
 
     Args:
-        gamma (float): gamma value to adjust the contrast as function.
+        gamma: gamma value to adjust the contrast as function.
     """
 
-    def __init__(self, gamma: Union[int, float]):
-        assert isinstance(gamma, (float, int)), "gamma must be a float or int number."
+    def __init__(self, gamma: float):
+        assert isinstance(gamma, float), "gamma must be a float number."
         self.gamma = gamma
 
     def __call__(self, img):
@@ -277,12 +269,12 @@ class RandAdjustContrast(Randomizable, Transform):
         `x = ((x - min) / intensity_range) ^ gamma * intensity_range + min`
 
     Args:
-        prob (float): Probability of adjustment.
+        prob: Probability of adjustment.
         gamma (tuple of float or float): Range of gamma values.
             If single number, value is picked from (0.5, gamma), default is (0.5, 4.5).
     """
 
-    def __init__(self, prob=0.1, gamma=(0.5, 4.5)):
+    def __init__(self, prob: float = 0.1, gamma=(0.5, 4.5)):
         self.prob = prob
         if not isinstance(gamma, (tuple, list)):
             assert gamma > 0.5, "if gamma is single number, must greater than 0.5 and value is picked from (0.5, gamma)"
