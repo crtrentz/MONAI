@@ -21,7 +21,7 @@ def write_nifti(
     file_name,
     affine=None,
     target_affine=None,
-    resample=True,
+    resample: bool = True,
     output_shape=None,
     interp_order=InterpolationCode.SPLINE3,
     mode="constant",
@@ -63,7 +63,7 @@ def write_nifti(
         target_affine (numpy.ndarray, optional): before saving
             the (`data`, `affine`) as a Nifti1Image,
             transform the data into the coordinates defined by `target_affine`.
-        resample (bool): whether to run resampling when the target affine
+        resample: whether to run resampling when the target affine
             could not be achieved by swapping/flipping data axes.
         output_shape (None or tuple of ints): output image shape.
             this option is used when resample = True.
