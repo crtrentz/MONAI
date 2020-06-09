@@ -580,6 +580,7 @@ class RandRotate(Randomizable, Transform):
         prefilter: Optional[bool] = None,
     ):
         self.randomize()
+        assert self.angle is not None
         if not self._do_transform:
             return img
         rotator = Rotate(

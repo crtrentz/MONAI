@@ -13,7 +13,7 @@ A collection of "vanilla" transforms for intensity adjustment
 https://github.com/Project-MONAI/MONAI/wiki/MONAI_Design
 """
 
-from typing import Union, Optional
+from typing import Union, Optional, Tuple
 
 import numpy as np
 
@@ -276,12 +276,14 @@ class RandAdjustContrast(Randomizable, Transform):
 
     def __init__(self, prob: float = 0.1, gamma=(0.5, 4.5)):
         self.prob = prob
+        self.gamma: Tuple[float, float]
+
         if not isinstance(gamma, (tuple, list)):
             assert gamma > 0.5, "if gamma is single number, must greater than 0.5 and value is picked from (0.5, gamma)"
             self.gamma = (0.5, gamma)
         else:
-            self.gamma = gamma
-        assert len(self.gamma) == 2, "gamma should be a number or pair of numbers."
+            assert len(gamma) == 2, "gamma should be a number or pair of numbers."
+            self.gamma = (gamma[0], gamma[1])
 
         self._do_transform = False
         self.gamma_value = None

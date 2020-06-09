@@ -126,8 +126,8 @@ def write_nifti(
                     cval=cval,
                 )
             )
-        data_chns = np.stack(data_chns, axis=-1)
-        data_ = data_chns.reshape(list(data_chns.shape[:3]) + list(channel_shape))
+        data_chns_ = np.stack(data_chns, axis=-1)
+        data_ = data_chns_.reshape(list(data_chns_.shape[:3]) + list(channel_shape))
     else:
         data_ = data.astype(dtype)
         data_ = scipy.ndimage.affine_transform(
